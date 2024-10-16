@@ -55,9 +55,8 @@ func (n *Node) decodeTagAndWireType() (tag string, wireType BaseKind) {
 	tagBuf := make([]byte, 3)
 	mylog.Check2(n.buf.Read(tagBuf))
 	tag = DecodeTag(tagBuf)
-	typeBuf := make([]byte, 1)
-	mylog.Check2(n.buf.Read(typeBuf))
-	wireType = BaseKind(typeBuf[0])
+	typeBuf := mylog.Check2(n.buf.ReadByte())
+	wireType = BaseKind(typeBuf)
 	n.tag = tag
 	n.wireType = wireType
 	return
@@ -73,8 +72,8 @@ func (n *Node) DecodeString() string {
 	length := decompressInteger(n.buf) //这里reader管理偏移，前面读掉tag4字节，来到这里第一个字节就是长度，后面是字符串，最后一个字节是结束符
 	result := make([]byte, length-1)   //去掉结束符
 	mylog.Check2(io.ReadFull(n.buf, result))
-	mylog.Check2(n.buf.Read(make([]byte, 1))) //c格式字符串的结束符0
-	if length == 1 {                          //这里合适?感觉应该往上移，需要过更多的单元测试
+	mylog.Check2(n.buf.ReadByte()) //c格式字符串的结束符0
+	if length == 1 {               //这里合适?感觉应该往上移，需要过更多的单元测试
 		return ""
 	}
 	return string(result)
@@ -358,7 +357,7 @@ type Union struct {
 
 // UnionRead 从流中读取一个联合类型的 Node
 func UnionRead(label []byte, stream io.Reader) *Union {
-	//unionType := make([]byte, 1)
+	//unionType := ReadByte
 	//if _ := io.ReadFull(stream, unionType); err != nil {
 	//	return Node{}
 	//}

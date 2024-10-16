@@ -8,20 +8,6 @@ import (
 	"testing"
 )
 
-// TDF_TYPE_INTEGER,
-//
-//	   TDF_TYPE_STRING,
-//	   TDF_TYPE_BINARY,
-//	   TDF_TYPE_STRUCT,
-//	   TDF_TYPE_LIST,
-//	   TDF_TYPE_MAP,
-//	   TDF_TYPE_UNION,
-//	   TDF_TYPE_VARIABLE,
-//	   TDF_TYPE_BLAZE_OBJECT_TYPE,
-//	   TDF_TYPE_BLAZE_OBJECT_ID,
-//		TDF_TYPE_FLOAT,
-//	   TDF_TYPE_TIMEVALUE,
-//	   TDF_TYPE_MAX;
 func TestGenBaseType(t *testing.T) {
 	g := stream.NewGeneratedFile()
 	g.Enum("base", //todo native

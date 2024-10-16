@@ -13,15 +13,17 @@ type BaseKind byte
 const (
 	IntegerKind BaseKind = iota
 	StringKind
-	BlobKind
+	BinaryKind
 	StructKind
 	ListKind
-	DictionaryKind
+	MapKind
 	UnionKind
-	IntegerListKind
-	IntVector2Kind
-	IntVector3Kind
-	UnknownKind
+	VariableKind
+	BlazeObjectTypeKind
+	BlazeObjectIdKind
+	FloatKind
+	TimeValueKind
+	MaxKind
 	InvalidBaseKind
 )
 
@@ -44,24 +46,28 @@ func (k BaseKind) String() string {
 		return "Integer"
 	case StringKind:
 		return "String"
-	case BlobKind:
-		return "Blob"
+	case BinaryKind:
+		return "Binary"
 	case StructKind:
 		return "Struct"
 	case ListKind:
 		return "List"
-	case DictionaryKind:
-		return "Dictionary"
+	case MapKind:
+		return "Map"
 	case UnionKind:
 		return "Union"
-	case IntegerListKind:
-		return "IntegerList"
-	case IntVector2Kind:
-		return "IntVector2"
-	case IntVector3Kind:
-		return "IntVector3"
-	case UnknownKind:
-		return "Unknown"
+	case VariableKind:
+		return "Variable"
+	case BlazeObjectTypeKind:
+		return "BlazeObjectType"
+	case BlazeObjectIdKind:
+		return "BlazeObjectId"
+	case FloatKind:
+		return "Float"
+	case TimeValueKind:
+		return "TimeValue"
+	case MaxKind:
+		return "Max"
 	default:
 		return "InvalidBaseKind"
 	}
@@ -71,15 +77,17 @@ func (k BaseKind) Keys() []string {
 	return []string{
 		"Integer",
 		"String",
-		"Blob",
+		"Binary",
 		"Struct",
 		"List",
-		"Dictionary",
+		"Map",
 		"Union",
-		"IntegerList",
-		"IntVector2",
-		"IntVector3",
-		"Unknown",
+		"Variable",
+		"BlazeObjectType",
+		"BlazeObjectId",
+		"Float",
+		"TimeValue",
+		"Max",
 	}
 }
 
@@ -87,15 +95,17 @@ func (k BaseKind) Kinds() []BaseKind {
 	return []BaseKind{
 		IntegerKind,
 		StringKind,
-		BlobKind,
+		BinaryKind,
 		StructKind,
 		ListKind,
-		DictionaryKind,
+		MapKind,
 		UnionKind,
-		IntegerListKind,
-		IntVector2Kind,
-		IntVector3Kind,
-		UnknownKind,
+		VariableKind,
+		BlazeObjectTypeKind,
+		BlazeObjectIdKind,
+		FloatKind,
+		TimeValueKind,
+		MaxKind,
 	}
 }
 
@@ -105,24 +115,28 @@ func (k BaseKind) PngFileName() string {
 		return "Integer"
 	case StringKind:
 		return "String"
-	case BlobKind:
-		return "Blob"
+	case BinaryKind:
+		return "Binary"
 	case StructKind:
 		return "Struct"
 	case ListKind:
 		return "List"
-	case DictionaryKind:
-		return "Dictionary"
+	case MapKind:
+		return "Map"
 	case UnionKind:
 		return "Union"
-	case IntegerListKind:
-		return "IntegerList"
-	case IntVector2Kind:
-		return "IntVector2"
-	case IntVector3Kind:
-		return "IntVector3"
-	case UnknownKind:
-		return "Unknown"
+	case VariableKind:
+		return "Variable"
+	case BlazeObjectTypeKind:
+		return "BlazeObjectType"
+	case BlazeObjectIdKind:
+		return "BlazeObjectId"
+	case FloatKind:
+		return "Float"
+	case TimeValueKind:
+		return "TimeValue"
+	case MaxKind:
+		return "Max"
 	default:
 		return "InvalidBaseKind"
 	}

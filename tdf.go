@@ -89,7 +89,7 @@ func (n *Node) DecodeInteger() uint32 {
 }
 
 func (n *Node) EncodeBlob(tag string, v []byte) []byte {
-	n.encodeTagAndWireType(tag, BlobKind)
+	n.encodeTagAndWireType(tag, BinaryKind)
 	n.buf.Write(slices.Concat(compressInteger(uint32(len(v))), v))
 	return n.buf.Bytes()
 }
@@ -159,7 +159,7 @@ func (n *Node) DecodeList() *List {
 	return nil
 }
 func (n *Node) EncodeDictionary(tag string, v map[any]any) []byte {
-	n.encodeTagAndWireType(tag, DictionaryKind)
+	n.encodeTagAndWireType(tag, MapKind)
 	return nil
 }
 func (n *Node) DecodeDictionary() map[any]any {
@@ -180,14 +180,14 @@ func (n *Node) DecodeIntegerList() []uint32 {
 	return nil
 }
 func (n *Node) EncodeIntVector2(tag string, v any) []byte {
-	n.encodeTagAndWireType(tag, IntVector2Kind)
+	n.encodeTagAndWireType(tag, BlazeObjectTypeKind)
 	return nil
 }
 func (n *Node) DecodeIntVector2() {
 	return
 }
 func (n *Node) EncodeIntVector3(tag string, v any) []byte {
-	n.encodeTagAndWireType(tag, IntVector3Kind)
+	n.encodeTagAndWireType(tag, BlazeObjectIdKind)
 	return nil
 }
 func (n *Node) DecodeIntVector3() {

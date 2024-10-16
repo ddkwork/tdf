@@ -8,21 +8,37 @@ import (
 	"testing"
 )
 
+// TDF_TYPE_INTEGER,
+//
+//	   TDF_TYPE_STRING,
+//	   TDF_TYPE_BINARY,
+//	   TDF_TYPE_STRUCT,
+//	   TDF_TYPE_LIST,
+//	   TDF_TYPE_MAP,
+//	   TDF_TYPE_UNION,
+//	   TDF_TYPE_VARIABLE,
+//	   TDF_TYPE_BLAZE_OBJECT_TYPE,
+//	   TDF_TYPE_BLAZE_OBJECT_ID,
+//		TDF_TYPE_FLOAT,
+//	   TDF_TYPE_TIMEVALUE,
+//	   TDF_TYPE_MAX;
 func TestGenBaseType(t *testing.T) {
 	g := stream.NewGeneratedFile()
-	g.Enum("base",
+	g.Enum("base", //todo native
 		[]string{
 			"Integer",
 			"String",
-			"Blob",
+			"Binary",
 			"Struct",
 			"List",
-			"Dictionary",
+			"Map",
 			"Union",
-			"IntegerList",
-			"IntVector2",
-			"IntVector3",
-			"Unknown",
+			"Variable",
+			"BlazeObjectType",
+			"BlazeObjectID",
+			"Float",
+			"TimeValue",
+			"Max",
 		},
 		nil)
 }
@@ -71,7 +87,7 @@ func TestReadBlob(t *testing.T) {
 	bytesData := []byte{0x8a, 0xcb, 0xe2, 0x2, 0x4, 0xde, 0xad, 0xbe, 0xef}
 	n := NewNode(bytesData)
 	assert.Equal(t, "BLOB", n.tag)
-	assert.Equal(t, BlobKind, n.wireType)
+	assert.Equal(t, BinaryKind, n.wireType)
 	assert.Equal(t, mylog.Check2(hex.DecodeString("deadbeef")), n.DecodeBlob())
 }
 

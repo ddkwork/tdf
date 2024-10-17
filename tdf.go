@@ -349,11 +349,6 @@ type Dictionary struct {
 //}
 
 // Union 表示联合类型的 Node
-type Union struct {
-	Value     byte //todo test
-	UnionType byte // 具体用途不明
-	*bufio.ReadWriter
-}
 
 // UnionRead 从流中读取一个联合类型的 Node
 func UnionRead(label []byte, stream io.Reader) *Union {

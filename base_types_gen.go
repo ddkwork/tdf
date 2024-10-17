@@ -31,9 +31,9 @@ func ConvertInteger2BaseType[T constraints.Integer](v T) BaseType {
 	return BaseType(v)
 }
 
-func (t BaseType) AssertType(Types string) BaseType {
+func (t BaseType) AssertType(name string) BaseType {
 	for _, Type := range t.Types() {
-		if strings.ToLower(Types) == strings.ToLower(Type.String()) {
+		if strings.ToLower(name) == strings.ToLower(Type.String()) {
 			return Type
 		}
 	}

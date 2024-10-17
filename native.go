@@ -17,6 +17,7 @@ func (b BaseType) Valid() bool { return b >= IntegerType && b < MaxType }
 
 // NativeTypeBind  for struct filed
 var NativeTypeBind = map[reflect.Type]BaseType{
+	reflect.TypeFor[bool]():            IntegerType,
 	reflect.TypeFor[int8]():            IntegerType,
 	reflect.TypeFor[int16]():           IntegerType,
 	reflect.TypeFor[int32]():           IntegerType,

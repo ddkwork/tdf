@@ -28,10 +28,10 @@ var NativeTypeBind = map[reflect.Type]BaseType{
 	reflect.TypeFor[uint64]():          IntegerType,
 	reflect.TypeFor[string]():          StructType,
 	reflect.TypeFor[[]byte]():          StructType, // blob
-	reflect.TypeFor[struct{}]():        StructType,
+	reflect.TypeFor[struct{}]():        StructType, //java显示tdf就是结构体类型,ID_TERM 0结尾
 	reflect.TypeFor[[]any]():           ListType,
 	reflect.TypeFor[map[any]any]():     MapType,
-	reflect.TypeFor[Union]():           UnionType,
+	reflect.TypeFor[Union]():           UnionType,    //todo mock enum
 	reflect.TypeFor[Variable]():        VariableType, //VariableTdfContainer ID_TERM 0结尾
 	reflect.TypeFor[float32]():         FloatType,    //floatToIntBits
 	reflect.TypeFor[float64]():         FloatType,

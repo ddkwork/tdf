@@ -4,7 +4,7 @@ go 1.23.0
 
 require (
 	gioui.org v0.7.1
-	github.com/ddkwork/golibrary v0.0.0-20241013144450-e7205c80fd2a
+	github.com/ddkwork/golibrary v0.0.0-20241017040650-bbbab1f8305d
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0
 )

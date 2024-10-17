@@ -8,8 +8,6 @@ import (
 	"strings"
 )
 
-func (b BaseKind) Valid() bool { return b >= IntegerKind && b < MaxKind }
-
 func DecodeTag(tag []byte) string {
 	if len(tag) != 3 {
 		mylog.Check("tagBuf length must be 3")

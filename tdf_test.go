@@ -10,23 +10,21 @@ import (
 
 func TestGenBaseType(t *testing.T) {
 	g := stream.NewGeneratedFile()
-	g.Enum("base", //todo native
-		[]string{
-			"Integer",
-			"String",
-			"Binary",
-			"Struct",
-			"List",
-			"Map",
-			"Union",
-			"Variable",
-			"BlazeObjectType",
-			"BlazeObjectID",
-			"Float",
-			"TimeValue",
-			"Max",
-		},
-		nil)
+	m := stream.NewOrderedMap("", "") //todo 更精确的tips,似乎缺少bool的绑定
+	m.Set("Integer", "int8,int16,int32,int64,uint8,uint16,uint32,uint64")
+	m.Set("String", "string")
+	m.Set("Binary", "[]byte")
+	m.Set("Struct", "TDFStruct")
+	m.Set("List", "[]any")
+	m.Set("Map", "map[any]any")
+	m.Set("Union", "Union")
+	m.Set("Variable", "Variable")
+	m.Set("BlazeObjectType", "BlazeObjectType")
+	m.Set("BlazeObjectID", "BlazeObjectID")
+	m.Set("Float", "float32,float64")
+	m.Set("TimeValue", "time.Time")
+	m.Set("Max", "must less it")
+	g.Types("base", m)
 }
 
 func TestNode_Marshal(t *testing.T) {
@@ -37,7 +35,7 @@ func TestInteger_decode(t *testing.T) {
 	bytesData := []byte{0xda, 0x1b, 0x35, 0x00, 0xb9, 0x14}
 	n := NewNode(bytesData)
 	assert.Equal(t, "VALU", n.tag)
-	assert.Equal(t, IntegerKind, n.wireType)
+	assert.Equal(t, IntegerType, n.wireType)
 	assert.Equal(t, uint32(1337), n.DecodeInteger())
 }
 
@@ -57,7 +55,7 @@ func TestString_decode(t *testing.T) {
 	}
 	n := NewNode(bytesData)
 	assert.Equal(t, "VALU", n.tag)
-	assert.Equal(t, StringKind, n.wireType)
+	assert.Equal(t, StringType, n.wireType)
 	assert.Equal(t, "Hello, World!", n.DecodeString())
 }
 
@@ -73,7 +71,7 @@ func TestReadBlob(t *testing.T) {
 	bytesData := []byte{0x8a, 0xcb, 0xe2, 0x2, 0x4, 0xde, 0xad, 0xbe, 0xef}
 	n := NewNode(bytesData)
 	assert.Equal(t, "BLOB", n.tag)
-	assert.Equal(t, BinaryKind, n.wireType)
+	assert.Equal(t, BinaryType, n.wireType)
 	assert.Equal(t, mylog.Check2(hex.DecodeString("deadbeef")), n.DecodeBlob())
 }
 

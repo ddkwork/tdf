@@ -25,7 +25,7 @@ type Node struct {
 	filteredRows []*Node
 	buf          *bytes.Buffer
 	tag          string
-	wireType     BaseKind
+	wireType     BaseType
 }
 
 func (n *Node) AddChildByData(data any) { n.AddChild(NewNode(nil)) }
@@ -47,23 +47,23 @@ func NewNode(b []byte) *Node {
 	return n
 }
 func (n *Node) Marshal() {}
-func (n *Node) encodeTagAndWireType(tag string, wireType BaseKind) {
+func (n *Node) encodeTagAndWireType(tag string, wireType BaseType) {
 	n.buf.Write(EncodeTag(tag))
 	n.buf.WriteByte(byte(wireType))
 }
-func (n *Node) decodeTagAndWireType() (tag string, wireType BaseKind) {
+func (n *Node) decodeTagAndWireType() (tag string, wireType BaseType) {
 	tagBuf := make([]byte, 3)
 	mylog.Check2(n.buf.Read(tagBuf))
 	tag = DecodeTag(tagBuf)
 	typeBuf := mylog.Check2(n.buf.ReadByte())
-	wireType = BaseKind(typeBuf)
+	wireType = BaseType(typeBuf)
 	n.tag = tag
 	n.wireType = wireType
 	return
 }
 
 func (n *Node) EncodeString(tag, value string) []byte {
-	n.encodeTagAndWireType(tag, StringKind)
+	n.encodeTagAndWireType(tag, StringType)
 	n.buf.Write(slices.Concat(compressInteger(uint32(len(value)+1)), []byte(value), []byte{0}))
 	return n.buf.Bytes()
 }
@@ -80,7 +80,7 @@ func (n *Node) DecodeString() string {
 }
 
 func (n *Node) EncodeInteger(tag string, v uint32) []byte {
-	n.encodeTagAndWireType(tag, IntegerKind)
+	n.encodeTagAndWireType(tag, IntegerType)
 	n.buf.Write(compressInteger(v))
 	return n.buf.Bytes()
 }
@@ -89,7 +89,7 @@ func (n *Node) DecodeInteger() uint32 {
 }
 
 func (n *Node) EncodeBlob(tag string, v []byte) []byte {
-	n.encodeTagAndWireType(tag, BinaryKind)
+	n.encodeTagAndWireType(tag, BinaryType)
 	n.buf.Write(slices.Concat(compressInteger(uint32(len(v))), v))
 	return n.buf.Bytes()
 }
@@ -101,7 +101,7 @@ func (n *Node) DecodeBlob() []byte {
 }
 
 func (n *Node) EncodeStruct(tag string, v *Struct) []byte {
-	n.encodeTagAndWireType(tag, StructKind)
+	n.encodeTagAndWireType(tag, StructType)
 	//n.buf.Write(slices.Concat(compressInteger(uint32(len(v.Fields))), v.Fields))
 	//js版本是填充0结束的，有点奇怪,大小似乎没有填充
 	return nil
@@ -152,42 +152,42 @@ func (t *Struct) AddField(field *Node) {
 //}
 
 func (n *Node) EncodeList(tag string, v []any) []byte {
-	n.encodeTagAndWireType(tag, ListKind)
+	n.encodeTagAndWireType(tag, ListType)
 	return nil
 }
 func (n *Node) DecodeList() *List {
 	return nil
 }
 func (n *Node) EncodeDictionary(tag string, v map[any]any) []byte {
-	n.encodeTagAndWireType(tag, MapKind)
+	n.encodeTagAndWireType(tag, MapType)
 	return nil
 }
 func (n *Node) DecodeDictionary() map[any]any {
 	return nil
 }
 func (n *Node) EncodeUnion(tag string, v any) []byte {
-	n.encodeTagAndWireType(tag, UnionKind)
+	n.encodeTagAndWireType(tag, UnionType)
 	return nil
 }
 func (n *Node) DecodeUnion() *Union {
 	return nil
 }
 func (n *Node) EncodeIntegerList(tag string, v []uint32) []byte {
-	n.encodeTagAndWireType(tag, ListKind)
+	n.encodeTagAndWireType(tag, ListType)
 	return nil
 }
 func (n *Node) DecodeIntegerList() []uint32 {
 	return nil
 }
 func (n *Node) EncodeIntVector2(tag string, v any) []byte {
-	n.encodeTagAndWireType(tag, BlazeObjectTypeKind)
+	n.encodeTagAndWireType(tag, BlazeObjectTypeType)
 	return nil
 }
 func (n *Node) DecodeIntVector2() {
 	return
 }
 func (n *Node) EncodeIntVector3(tag string, v any) []byte {
-	n.encodeTagAndWireType(tag, BlazeObjectIdKind)
+	n.encodeTagAndWireType(tag, BlazeObjectIdType)
 	return nil
 }
 func (n *Node) DecodeIntVector3() {
@@ -226,7 +226,7 @@ func (n *Node) DecodeIntVector3() {
 // List 同类型切片，结构体是不同类型切片+嵌套
 type List struct {
 	Value   any //todo 限制类型
-	Subtype BaseKind
+	Subtype BaseType
 	Length  int
 	*bufio.ReadWriter
 }
@@ -273,8 +273,8 @@ type DictionaryMap map[any]any
 // Dictionary 表示字典类型的 Node
 type Dictionary struct {
 	Value     DictionaryMap
-	KeyType   BaseKind
-	ValueType BaseKind
+	KeyType   BaseType
+	ValueType BaseType
 	Length    int
 	*bufio.ReadWriter
 }

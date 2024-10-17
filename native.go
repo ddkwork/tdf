@@ -35,7 +35,7 @@ var NativeTypeBind = map[reflect.Type]BaseType{
 	reflect.TypeFor[Variable]():        VariableType, //VariableTdfContainer ID_TERM 0结尾
 	reflect.TypeFor[float32]():         FloatType,    //floatToIntBits
 	reflect.TypeFor[float64]():         FloatType,
-	reflect.TypeFor[BlazeObjectType](): BlazeObjectTypeType,
-	reflect.TypeFor[BlazeObjectId]():   BlazeObjectIdType,
+	reflect.TypeFor[BlazeObjectType](): BlazeObjectTypeType, //getComponentId and getTypeId  整型编解码,难道是树形的层级下标和孩子节点下标?
+	reflect.TypeFor[BlazeObjectId]():   BlazeObjectIdType,   //getComponentId , getTypeId and getEntityId 整型编解码
 	reflect.TypeFor[time.Time]():       TimeValueType,
 }

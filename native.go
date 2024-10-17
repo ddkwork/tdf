@@ -42,21 +42,32 @@ var NativeTypeBind = map[reflect.Type]BaseType{
 
 // 类型 encoderHelper 算法说明，解码也一样,使用函数对称结构，自动验证算法的正确性
 type Codec struct {
-	encode func()
-	decode func()
-	equal  func() bool
+	baseType BaseType
+	encode   func()
+	decode   func()
+	equal    func() bool
 }
 
-var codecMap = map[BaseType]Codec{
-	IntegerType:         {encode: func() {}, decode: func() {}, equal: func() bool { return false }},
-	FloatType:           {encode: func() {}, decode: func() {}, equal: func() bool { return false }},
-	StringType:          {encode: func() {}, decode: func() {}, equal: func() bool { return false }},
-	StructType:          {encode: func() {}, decode: func() {}, equal: func() bool { return false }},
-	ListType:            {encode: func() {}, decode: func() {}, equal: func() bool { return false }},
-	MapType:             {encode: func() {}, decode: func() {}, equal: func() bool { return false }},
-	UnionType:           {encode: func() {}, decode: func() {}, equal: func() bool { return false }},
-	VariableType:        {encode: func() {}, decode: func() {}, equal: func() bool { return false }},
-	BlazeObjectTypeType: {encode: func() {}, decode: func() {}, equal: func() bool { return false }},
-	BlazeObjectIdType:   {encode: func() {}, decode: func() {}, equal: func() bool { return false }},
-	TimeValueType:       {encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+var CodecMap = map[reflect.Type]Codec{
+	reflect.TypeFor[bool]():            {baseType: IntegerType, encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	reflect.TypeFor[int8]():            {baseType: IntegerType, encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	reflect.TypeFor[int16]():           {baseType: IntegerType, encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	reflect.TypeFor[int32]():           {baseType: IntegerType, encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	reflect.TypeFor[int64]():           {baseType: IntegerType, encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	reflect.TypeFor[uint8]():           {baseType: IntegerType, encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	reflect.TypeFor[uint16]():          {baseType: IntegerType, encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	reflect.TypeFor[uint32]():          {baseType: IntegerType, encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	reflect.TypeFor[uint64]():          {baseType: IntegerType, encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	reflect.TypeFor[string]():          {baseType: StringType, encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	reflect.TypeFor[[]byte]():          {baseType: StructType, encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	reflect.TypeFor[struct{}]():        {baseType: StructType, encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	reflect.TypeFor[[]any]():           {baseType: ListType, encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	reflect.TypeFor[map[any]any]():     {baseType: MapType, encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	reflect.TypeFor[Union]():           {baseType: UnionType, encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	reflect.TypeFor[Variable]():        {baseType: VariableType, encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	reflect.TypeFor[float32]():         {baseType: FloatType, encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	reflect.TypeFor[float64]():         {baseType: FloatType, encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	reflect.TypeFor[BlazeObjectType](): {baseType: BlazeObjectTypeType, encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	reflect.TypeFor[BlazeObjectId]():   {baseType: BlazeObjectIdType, encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	reflect.TypeFor[time.Time]():       {baseType: TimeValueType, encode: func() {}, decode: func() {}, equal: func() bool { return false }},
 }

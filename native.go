@@ -39,3 +39,24 @@ var NativeTypeBind = map[reflect.Type]BaseType{
 	reflect.TypeFor[BlazeObjectId]():   BlazeObjectIdType,   //getComponentId , getTypeId and getEntityId 整型编解码
 	reflect.TypeFor[time.Time]():       TimeValueType,
 }
+
+// 类型 encoderHelper 算法说明，解码也一样,使用函数对称结构，自动验证算法的正确性
+type Codec struct {
+	encode func()
+	decode func()
+	equal  func() bool
+}
+
+var codecMap = map[BaseType]Codec{
+	IntegerType:         {encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	FloatType:           {encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	StringType:          {encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	StructType:          {encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	ListType:            {encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	MapType:             {encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	UnionType:           {encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	VariableType:        {encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	BlazeObjectTypeType: {encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	BlazeObjectIdType:   {encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+	TimeValueType:       {encode: func() {}, decode: func() {}, equal: func() bool { return false }},
+}

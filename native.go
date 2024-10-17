@@ -32,8 +32,8 @@ var NativeTypeBind = map[reflect.Type]BaseType{
 	reflect.TypeFor[[]any]():           ListType,
 	reflect.TypeFor[map[any]any]():     MapType,
 	reflect.TypeFor[Union]():           UnionType,
-	reflect.TypeFor[Variable]():        VariableType,
-	reflect.TypeFor[float32]():         FloatType,
+	reflect.TypeFor[Variable]():        VariableType, //VariableTdfContainer ID_TERM 0结尾
+	reflect.TypeFor[float32]():         FloatType,    //floatToIntBits
 	reflect.TypeFor[float64]():         FloatType,
 	reflect.TypeFor[BlazeObjectType](): BlazeObjectTypeType,
 	reflect.TypeFor[BlazeObjectId]():   BlazeObjectIdType,

@@ -9,15 +9,6 @@ import (
 	"slices"
 )
 
-//所有类型统一读取tag 3字节，type 1字节，然后编解码对应的类型,
-//一般是klv模式编解码?
-//
-//比如字符串是
-//key      -          length    -     valu
-//tag3字节+1字节tupe   第一个字节       后面字节+结束符，返回的时候要cut掉，但是必须把结束符读取掉，否则会影响后面的各种解析
-
-//integer 压缩和解压
-
 type Node struct {
 	Data         any
 	parent       *Node

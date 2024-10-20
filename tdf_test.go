@@ -2,16 +2,18 @@ package tdf
 
 import (
 	"encoding/hex"
+	"testing"
+
 	"github.com/ddkwork/encoding/struct2table"
 	"github.com/ddkwork/golibrary/mylog"
 	"github.com/ddkwork/golibrary/stream"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestGenBaseType(t *testing.T) {
+	mylog.FormatAllFiles()
 	g := stream.NewGeneratedFile()
-	m := stream.NewOrderedMap("", "") //todo 更精确的tips
+	m := stream.NewOrderedMap("", "") // todo 更精确的tips
 	m.Set("Integer", "bool,int8,int16,int32,int64,uint8,uint16,uint32,uint64")
 	m.Set("String", "string")
 	m.Set("Binary", "[]byte")
@@ -73,19 +75,15 @@ func TestReflect(t *testing.T) {
 }
 
 func TestMarshal(t *testing.T) {
-
 }
 
 func TestNativeType_IsValid(t *testing.T) {
-
 }
 
 func Test_marshalList(t *testing.T) {
-
 }
 
 func Test_marshalMap(t *testing.T) {
-
 }
 
 func Test_marshalSingular(t *testing.T) {
@@ -101,17 +99,18 @@ func Test_marshalSingular(t *testing.T) {
 
 	b = marshalSingular("VALU", 1337)
 	assert.Equal(t, []byte{0xda, 0x1b, 0x35, 0x00, 0xb9, 0x14}, b.Bytes())
-
 }
 
 func Test_unmarshalSingular(t *testing.T) {
 	tag, wireType, data := unmarshalSingular([]byte{0x8a, 0xcb, 0xe2, 0x2, 0x4, 0xde, 0xad, 0xbe, 0xef})
 	assert.Equal(t, "BLOB", tag)
-	assert.Equal(t, BinaryType, wireType) //不使用idt机制，应该按类型取值保平安
+	assert.Equal(t, BinaryType, wireType) // 不使用idt机制，应该按类型取值保平安
 	assert.Equal(t, mylog.Check2(hex.DecodeString("deadbeef")), data)
 
-	tag, wireType, data = unmarshalSingular([]byte{0xda, 0x1b, 0x35, 0x01, 0x0e, 0x48, 0x65, 0x6c, 0x6c, 0x6f,
-		0x2c, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64, 0x21, 0x00})
+	tag, wireType, data = unmarshalSingular([]byte{
+		0xda, 0x1b, 0x35, 0x01, 0x0e, 0x48, 0x65, 0x6c, 0x6c, 0x6f,
+		0x2c, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64, 0x21, 0x00,
+	})
 	assert.Equal(t, "VALU", tag)
 	assert.Equal(t, StringType, wireType)
 	assert.Equal(t, "Hello, World!", data)
@@ -120,7 +119,6 @@ func Test_unmarshalSingular(t *testing.T) {
 	assert.Equal(t, "VALU", tag)
 	assert.Equal(t, IntegerType, wireType)
 	assert.Equal(t, uint32(1337), data)
-
 }
 
 func TestReadStruct(t *testing.T) {

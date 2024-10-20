@@ -14,7 +14,7 @@ func Test_Tag(t *testing.T) {
 
 	mylog.Hex("makeTag", tag)
 	assert.Equal(t, uint32(0x8e6a6400), tag)
-	//mylog.Info("decodeTag", DecodeTag(tag))
+	// mylog.Info("decodeTag", DecodeTag(tag))
 }
 
 func Test2(t *testing.T) {

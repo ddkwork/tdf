@@ -8,6 +8,8 @@ import (
 	"math"
 	"strings"
 	"time"
+
+	"github.com/ddkwork/golibrary/mylog"
 )
 
 // PrintEncoder is a TdfEncoder that writes TDF data to an io.Writer in a human-readable format.
@@ -106,7 +108,7 @@ func (e *PrintEncoder) writeFloat(f float32) error {
 		return e.write("Infinity")
 	}
 	if math.IsInf(float64(f), -1) {
-		//return e.writeInfinity
+		// return e.writeInfinity
 	}
 	return e.write(fmt.Sprintf("%g", f))
 }
@@ -127,7 +129,7 @@ func (e *PrintEncoder) writeTime(t time.Time) error {
 }
 
 func (e *PrintEncoder) writeObject(obj *BlazeObjectId) error {
-	//return e.write(fmt.Sprintf("object(%d,%d)", obj.Type, obj.Id))
+	// return e.write(fmt.Sprintf("object(%d,%d)", obj.Type, obj.Id))
 	return nil
 }
 
@@ -136,33 +138,19 @@ func (e *PrintEncoder) writeArray(arr []any, level int) error {
 		return e.write("[]")
 	}
 	if e.pretty {
-		if err := e.write("[\n"); err != nil {
-			return err
-		}
+		mylog.Check(e.write("[\n"))
 		for _, tdf := range arr {
-			if err := e.writeIndent(level + 1); err != nil {
-				return err
-			}
-			if err := e.encodeTdf(tdf, level+1); err != nil {
-				return err
-			}
-			if err := e.write(",\n"); err != nil {
-				return err
-			}
+			mylog.Check(e.writeIndent(level + 1))
+			mylog.Check(e.encodeTdf(tdf, level+1))
+			mylog.Check(e.write(",\n"))
 		}
-		if err := e.writeIndent(level); err != nil {
-			return err
-		}
+		mylog.Check(e.writeIndent(level))
 		return e.write("]")
 	}
 	var buf bytes.Buffer
 	for _, tdf := range arr {
-		if err := e.encodeTdf(tdf, level+1); err != nil {
-			return err
-		}
-		if err := e.write(","); err != nil {
-			return err
-		}
+		mylog.Check(e.encodeTdf(tdf, level+1))
+		mylog.Check(e.write(","))
 	}
 	return e.write(fmt.Sprintf("[%s]", strings.TrimRight(buf.String(), ",")))
 }
@@ -232,36 +220,24 @@ func (e *PrintEncoder) writeUnion(u *Union, level int) error {
 		return e.write("null")
 	}
 	if e.pretty {
-		if err := e.write("{\n"); err != nil {
-			return err
-		}
-		if err := e.writeIndent(level + 1); err != nil {
-			return err
-		}
+		mylog.Check(e.write("{\n"))
+		mylog.Check(e.writeIndent(level + 1))
 		//if err := e.writeString(u.Type); err != nil {
 		//	return err
 		//}
-		if err := e.write(": "); err != nil {
-			return err
-		}
+		mylog.Check(e.write(": "))
 		//if err := e.encodeTdf(u.Value, level+1); err != nil {
 		//	return err
 		//}
-		if err := e.write("\n"); err != nil {
-			return err
-		}
-		if err := e.writeIndent(level); err != nil {
-			return err
-		}
+		mylog.Check(e.write("\n"))
+		mylog.Check(e.writeIndent(level))
 		return e.write("}")
 	}
 	//if err := e.writeString(u.Type); err != nil {
 	//	return err
 	//}
-	if err := e.write(":"); err != nil {
-		return err
-	}
-	//return e.encodeTdf(u.Value, level+1)
+	mylog.Check(e.write(":"))
+	// return e.encodeTdf(u.Value, level+1)
 	return nil
 }
 
@@ -321,8 +297,8 @@ func (e *PrintEncoder) writeIndent(level int) error {
 }
 
 func (e *PrintEncoder) write(s string) error {
-	_, err := io.WriteString(e.w, s)
-	return err
+	mylog.Check2(io.WriteString(e.w, s))
+	return nil
 }
 
 func escapeHTML(s string) string {

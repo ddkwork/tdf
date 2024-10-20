@@ -3,12 +3,13 @@ package tdf
 import (
 	"bufio"
 	"encoding/binary"
-	"github.com/ddkwork/golibrary/stream"
 	"io"
 	"reflect"
 	"slices"
 	"strings"
 	"time"
+
+	"github.com/ddkwork/golibrary/stream"
 
 	"github.com/ddkwork/app/widget"
 	"github.com/ddkwork/encoding/struct2table"
@@ -38,7 +39,7 @@ func marshalStruct(b *stream.Buffer, parent *widget.Node[struct2table.StructFiel
 		case reflect.String:
 			b.Append(marshalSingular(string(child.Data.Tag), child.Data.Value.String()))
 		case reflect.Slice, reflect.Array:
-			marshalList(b, child) //todo handle bytes buffer as slsingular
+			marshalList(b, child) // todo handle bytes buffer as slsingular
 		case reflect.Map:
 			marshalMap(b, child)
 		case reflect.Struct:
@@ -59,17 +60,17 @@ func marshalStruct(b *stream.Buffer, parent *widget.Node[struct2table.StructFiel
 }
 
 type List struct {
-	Value   any //todo 限制类型
+	Value   any // todo 限制类型
 	Subtype BaseType
 	Length  int
 	*bufio.ReadWriter
 }
 
 func (t *List) encode() []byte {
-	//buffer := bytes.Buffer{}
-	//buffer.Write(t.Tag.Marshal())
-	//buffer.WriteByte(byte(t.Subtype))
-	//buffer.Write(compressInteger(t.Length)) // 需要实现的函数
+	// buffer := bytes.Buffer{}
+	// buffer.Write(t.Tag.Marshal())
+	// buffer.WriteByte(byte(t.Subtype))
+	// buffer.Write(compressInteger(t.Length))
 
 	// 处理每个子项的写入
 	// 需根据具体类型处理，伪代码如下：
@@ -80,12 +81,10 @@ func (t *List) encode() []byte {
 	//     }
 	// ...
 	// }
-	//return buffer
+	// return buffer
 	return nil
 }
 
-// ListRead 从流中读取一个列表类型的 Node
-//
 //	func ListRead(label []byte, stream io.Reader) Node {
 //		subtype := decompressInteger(stream) // 需要实现的函数
 //		length := decompressInteger(stream)  // 需要实现的函数
@@ -361,6 +360,7 @@ func encodeTagAndWireType[T string | reflect.StructTag](tag T, wireType BaseType
 	b.WriteByte(byte(wireType))
 	return
 }
+
 func decodeTagAndWireType(b *stream.Buffer) (tag string, wireType BaseType) {
 	tagBuf := make([]byte, 3)
 	mylog.Check2(b.Read(tagBuf))
@@ -417,9 +417,9 @@ func decompressInteger(b *stream.Buffer) uint32 {
 	mylog.Check2(b.Read(buffer))
 	result += uint64(buffer[0]) & 0x3F
 	for buffer[0]&0x80 != 0 {
-		if _, err := b.Read(buffer); err != nil {
-			mylog.CheckEof(err) //todo test  Check2 是否可以工作
-		}
+		mylog.Check2(b.Read(buffer))
+		// todo test  Check2 是否可以工作
+
 		result |= (uint64(buffer[0]) & 0x7F) << currentShift
 		currentShift += 7
 	}
@@ -451,10 +451,10 @@ type singularType interface {
 		~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 |
 		~float32 | ~float64 |
 		~string |
-		~[]byte | //其余类型的切片一般情况下不会存在二维字节切片的字段，所以把一维字节切片视为单一类型
+		~[]byte | // 其余类型的切片一般情况下不会存在二维字节切片的字段，所以把一维字节切片视为单一类型
 		BlazeObjectType | BlazeObjectId |
 		time.Time | TimeValue
-	//Union | Variable | Enum | Struct | List | Map | Set | todo bug
+	// Union | Variable | Enum | Struct | List | Map | Set | todo bug
 }
 
 // SingularAssert 解码无法让泛型有用武之地,为了避免取值类型不匹配，取值之前需要判断baseType是否匹配
@@ -485,11 +485,11 @@ func (s *SingularAssert) BlazeObjectId() BlazeObjectId     { return s.data.(Blaz
 func (s *SingularAssert) BlazeObjectType() BlazeObjectType { return s.data.(BlazeObjectType) }
 func (s *SingularAssert) TimeValue() TimeValue             { return s.data.(TimeValue) }
 
-//更安全的做法是这里先解码tag和类型并传入类型，然后改成泛型函数，类型就安全了
-//在构造树节点的时候传入类型返回对应类型的值，然后填充节点元数据?
-//构造树类型安全之后，用户取值还是需要按类型取，感觉又回到原点了
-//测试一下root取节点元数据如何传入类型?
-//解码返回的只是一个树形，无法预先知道每个节点的元数据类型，因为我们不使用协议辅助文件系统
+// 更安全的做法是这里先解码tag和类型并传入类型，然后改成泛型函数，类型就安全了
+// 在构造树节点的时候传入类型返回对应类型的值，然后填充节点元数据?
+// 构造树类型安全之后，用户取值还是需要按类型取，感觉又回到原点了
+// 测试一下root取节点元数据如何传入类型?
+// 解码返回的只是一个树形，无法预先知道每个节点的元数据类型，因为我们不使用协议辅助文件系统
 
 // 解码二进制预先是不知道类型的，所以这里不限制类型才合理？部分返回值需要断言看来是无法避免的了,或者需要一个统一的断言函数来确保解码安全
 func unmarshalSingular(buf []byte) (tag string, wireType BaseType, data any) {
@@ -594,10 +594,10 @@ func marshalSingular[T singularType](tag string, value T) (b *stream.Buffer) {
 		//}
 	case string:
 		b.Write(slices.Concat(compressInteger(uint64(len(v)+1)), []byte(v), []byte{0}))
-	case []byte: //blob
+	case []byte: // blob
 		b.WriteByte(byte(len(v)))
 		b.Write(v)
-	case Union: //todo add enum ?
+	case Union: // todo add enum ?
 		// e.visit(tag, value, referenceValue, defaultValue.getValue())
 
 		//if !e.mEncodeHeader || e.encodeHeader(tag, TDF_TYPE_UNION) {
@@ -611,7 +611,7 @@ func marshalSingular[T singularType](tag string, value T) (b *stream.Buffer) {
 	//	}
 
 	case Variable:
-		//if !e.mEncodeHeader || e.encodeHeader(tag, TDF_TYPE_VARIABLE) {
+		// if !e.mEncodeHeader || e.encodeHeader(tag, TDF_TYPE_VARIABLE) {
 		//	mylog.Check(binary.Write(e.w, binary.BigEndian, byte(0)))
 
 		//	mylog.Check(
@@ -669,15 +669,15 @@ var NativeTypeBind = map[reflect.Type]BaseType{
 	reflect.TypeFor[uint64]():          IntegerType,
 	reflect.TypeFor[string]():          StringType,
 	reflect.TypeFor[[]byte]():          BinaryType,   // blob
-	reflect.TypeFor[struct{}]():        StructType,   //java显示tdf就是结构体类型,ID_TERM 0结尾
-	reflect.TypeFor[[]any]():           ListType,     //java显示方法名称为Vector,类型，大小，遍历
-	reflect.TypeFor[map[any]any]():     MapType,      //k v type,size,遍历
-	reflect.TypeFor[Union]():           UnionType,    //todo mock enum
-	reflect.TypeFor[Variable]():        VariableType, //VariableTdfContainer ID_TERM 0结尾
-	reflect.TypeFor[float32]():         FloatType,    //floatToIntBits
+	reflect.TypeFor[struct{}]():        StructType,   // java显示tdf就是结构体类型,ID_TERM 0结尾
+	reflect.TypeFor[[]any]():           ListType,     // java显示方法名称为Vector,类型，大小，遍历
+	reflect.TypeFor[map[any]any]():     MapType,      // k v type,size,遍历
+	reflect.TypeFor[Union]():           UnionType,    // todo mock enum
+	reflect.TypeFor[Variable]():        VariableType, // VariableTdfContainer ID_TERM 0结尾
+	reflect.TypeFor[float32]():         FloatType,    // floatToIntBits
 	reflect.TypeFor[float64]():         FloatType,
-	reflect.TypeFor[BlazeObjectType](): BlazeObjectTypeType, //getComponentId and getTypeId  整型编解码,难道是树形的层级下标和孩子节点下标?
-	reflect.TypeFor[BlazeObjectId]():   BlazeObjectIdType,   //getComponentId , getTypeId and getEntityId 整型编解码
+	reflect.TypeFor[BlazeObjectType](): BlazeObjectTypeType, // getComponentId and getTypeId  整型编解码,难道是树形的层级下标和孩子节点下标?
+	reflect.TypeFor[BlazeObjectId]():   BlazeObjectIdType,   // getComponentId , getTypeId and getEntityId 整型编解码
 	reflect.TypeFor[time.Time]():       TimeValueType,
 }
 

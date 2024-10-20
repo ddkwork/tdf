@@ -2,12 +2,13 @@ package tdf
 
 import (
 	"encoding/binary"
+	"io"
+	"math/big"
+
 	"github.com/ddkwork/app/widget"
 	"github.com/ddkwork/encoding/struct2table"
 	"github.com/ddkwork/golibrary/mylog"
 	"github.com/ddkwork/golibrary/stream"
-	"io"
-	"math/big"
 )
 
 type Heat2Decoder struct {
@@ -47,7 +48,7 @@ func NewHeat2Decoder(b []byte) (d *Heat2Decoder) {
 			return
 		}
 		d.metadataBuf = result
-	case BinaryType: //DecodeBlob
+	case BinaryType: // DecodeBlob
 		length := decompressInteger(d.mByteBuffer)
 		d.metadataBuf = make([]byte, length)
 		mylog.Check2(io.ReadFull(d.mByteBuffer, d.metadataBuf))

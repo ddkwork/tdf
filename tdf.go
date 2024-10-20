@@ -23,20 +23,20 @@ func Marshal(message any) (buf *stream.Buffer) {
 }
 
 func marshalStruct(b *stream.Buffer, parent *widget.Node[struct2table.StructField]) {
-	b.Write(encodeTagAndWireType(parent.Data.Tag, StructType).Bytes())
+	b.Append(encodeTagAndWireType(parent.Data.Tag, StructType))
 	defer b.WriteByte(ID_TERM)
 	for _, child := range parent.Children {
 		switch child.Data.Value.Kind() {
 		case reflect.Bool:
-			b.Write(marshalSingular(string(child.Data.Tag), child.Data.Value.Bool()).Bytes())
+			b.Append(marshalSingular(string(child.Data.Tag), child.Data.Value.Bool()))
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			b.Write(marshalSingular(string(child.Data.Tag), child.Data.Value.Int()).Bytes())
+			b.Append(marshalSingular(string(child.Data.Tag), child.Data.Value.Int()))
 		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			b.Write(marshalSingular(string(child.Data.Tag), child.Data.Value.Uint()).Bytes())
+			b.Append(marshalSingular(string(child.Data.Tag), child.Data.Value.Uint()))
 		case reflect.Float32, reflect.Float64:
-			b.Write(marshalSingular(string(child.Data.Tag), child.Data.Value.Float()).Bytes())
+			b.Append(marshalSingular(string(child.Data.Tag), child.Data.Value.Float()))
 		case reflect.String:
-			b.Write(marshalSingular(string(child.Data.Tag), child.Data.Value.String()).Bytes())
+			b.Append(marshalSingular(string(child.Data.Tag), child.Data.Value.String()))
 		case reflect.Slice, reflect.Array:
 			marshalList(b, child) //todo handle bytes buffer as slsingular
 		case reflect.Map:
@@ -46,7 +46,7 @@ func marshalStruct(b *stream.Buffer, parent *widget.Node[struct2table.StructFiel
 		default:
 			switch child.Data.Type {
 			case timeValueNativeType:
-				b.Write(marshalSingular(string(child.Data.Tag), child.Data.Value.Interface().(time.Time).UnixNano()).Bytes())
+				b.Append(marshalSingular(string(child.Data.Tag), child.Data.Value.Interface().(time.Time).UnixNano()))
 			case unionNativeType:
 				mylog.Check("union type not supported")
 			case blazeObjectIdNativeType:
@@ -80,7 +80,7 @@ func (t *List) encode() []byte {
 	//     }
 	// ...
 	// }
-	//return buffer.Bytes()
+	//return buffer
 	return nil
 }
 
@@ -168,7 +168,7 @@ func UnionRead(label []byte, stream io.Reader) *Union {
 //	buffer.WriteByte(t.UnionType)
 //	valueData := t.Value.Write()
 //	buffer.Write(valueData)
-//	return buffer.Bytes()
+//	return buffer
 //}
 
 // IntegerList 表示整数列表类型的 Node
@@ -195,7 +195,7 @@ type IntegerList struct {
 //	for _, value := range t.Value {
 //		buffer.Write(compressInteger(value)) // 需要实现的函数
 //	}
-//	return buffer.Bytes()
+//	return buffer
 //}
 
 // DictionaryRead 从流中读取一个字典类型的 Node
@@ -264,7 +264,7 @@ type IntegerList struct {
 //		buffer.Write(vBuffer)
 //	}
 //
-//	return buffer.Bytes()
+//	return buffer
 //}
 
 // IntVector2 表示二维整数向量类型的 Node
@@ -290,7 +290,7 @@ type IntegerList struct {
 //	buffer.Write(t.Tag.Marshal())
 //	buffer.Write(compressInteger(t.Value[0])) // 需要实现的函数
 //	buffer.Write(compressInteger(t.Value[1])) // 需要实现的函数
-//	return buffer.Bytes()
+//	return buffer
 //}
 //
 //// IntVector3 表示三维整数向量类型的 Node
@@ -317,7 +317,7 @@ type IntegerList struct {
 //	buffer.Write(compressInteger(t.Value[0])) // 需要实现的函数
 //	buffer.Write(compressInteger(t.Value[1])) // 需要实现的函数
 //	buffer.Write(compressInteger(t.Value[2])) // 需要实现的函数
-//	return buffer.Bytes()
+//	return buffer
 //}
 
 func marshalMap(b *stream.Buffer, parent *widget.Node[struct2table.StructField]) {

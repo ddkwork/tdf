@@ -168,8 +168,8 @@ func TestWriteStruct(t *testing.T) {
 	//	0x20, 0x73, 0x74, 0x72, 0x75, 0x63, 0x74, 0x00, 0x00,
 	//}
 	//
-	//if !bytes.Equal(buffer.Bytes(), expectedBytes) {
-	//	t.Errorf("Expected %+v, but got %+v", expectedBytes, buffer.Bytes())
+	//if !bytes.Equal(buffer, expectedBytes) {
+	//	t.Errorf("Expected %+v, but got %+v", expectedBytes, buffer)
 	//}
 }
 
@@ -236,7 +236,7 @@ func Test_marshalStruct(t *testing.T) {
 	// todo merge header 16 bytes
 	mylog.HexDump("marshal", marshal.Bytes())
 
-	// assert.Equal(packedBuf, encoder.w.Bytes())
+	// assert.Equal(packedBuf, encoder.w)
 	assert.Equal(t, packedBuf[16:], marshal)
 }
 
@@ -280,9 +280,9 @@ func Test_marshalStruct(t *testing.T) {
 //
 //	// todo merge header 16 bytes
 //
-//	mylog.HexDump("masher", encoder.w.Bytes())
+//	mylog.HexDump("masher", encoder.w)
 //
-//	assert.Equal(t, packedBuf, encoder.w.Bytes())
+//	assert.Equal(t, packedBuf, encoder.w)
 //}
 
 var packedBuf = []byte{

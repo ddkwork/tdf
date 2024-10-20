@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"encoding/binary"
 	"io"
-	"reflect"
+	. "reflect"
 	"slices"
 	"strings"
 	"time"
@@ -27,31 +27,40 @@ func marshalStruct(b *stream.Buffer, parent *widget.Node[struct2table.StructFiel
 	defer b.WriteByte(ID_TERM)
 	for _, child := range parent.Children {
 		switch child.Data.Value.Kind() {
-		case reflect.Bool:
+		case Bool:
 			b.Append(marshalSingular(string(child.Data.Tag), child.Data.Value.Bool()))
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		case Int, Int8, Int16, Int32, Int64:
 			b.Append(marshalSingular(string(child.Data.Tag), child.Data.Value.Int()))
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		case Uint, Uint8, Uint16, Uint32, Uint64:
 			b.Append(marshalSingular(string(child.Data.Tag), child.Data.Value.Uint()))
-		case reflect.Float32, reflect.Float64:
+		case Float32, Float64:
 			b.Append(marshalSingular(string(child.Data.Tag), child.Data.Value.Float()))
-		case reflect.String:
+		case String:
 			b.Append(marshalSingular(string(child.Data.Tag), child.Data.Value.String()))
-		case reflect.Slice, reflect.Array:
-			marshalList(b, child) // todo handle bytes buffer as slsingular
-		case reflect.Map:
+		case Slice, Array:
+			if child.Data.Value.Elem().Kind() == Int8 {
+				b.Append(marshalSingular(string(child.Data.Tag), child.Data.ValueAssert.([]byte)))
+				continue
+			}
+			marshalList(b, child)
+		case Map:
 			marshalMap(b, child)
-		case reflect.Struct:
+		case Struct:
 			marshalStruct(b, child)
 		default:
 			switch child.Data.Type {
-			case timeValueNativeType:
-				b.Append(marshalSingular(string(child.Data.Tag), child.Data.Value.Interface().(time.Time).UnixNano()))
-			case unionNativeType:
+			case BytesNativeType:
+				marshalSingular(string(child.Data.Tag), child.Data.ValueAssert.([]byte))
+			case UnionNativeType:
 				mylog.Check("union type not supported")
-			case blazeObjectIdNativeType:
+			case VariableNativeType:
+				mylog.Check("variable type not supported")
+			case BlazeObjectTypeNativeType:
 				mylog.Check("blazeObjectId type not supported")
-
+			case BlazeObjectIdNativeType:
+				mylog.Check("blazeObjectId type not supported")
+			case TimeValueNativeType:
+				b.Append(marshalSingular(string(child.Data.Tag), child.Data.ValueAssert.(time.Time).UnixNano()))
 			}
 			mylog.Check("unsupported type")
 		}
@@ -101,8 +110,8 @@ func (t *List) encode() []byte {
 //		return List{Node: Node{Label: string(label), Type: List}, Value: value, Subtype: BaseKind(subtype), Length: length}
 //	}
 func marshalList(b *stream.Buffer, parent *widget.Node[struct2table.StructField]) {
-	// typeOf := reflect.TypeOf(parent.Data.Value.Interface())
-	//value := reflect.Indirect(reflect.ValueOf(parent.Data.Value.Interface()))
+	// typeOf := TypeOf(parent.Data.Value.Interface())
+	//value := Indirect(ValueOf(parent.Data.Value.Interface()))
 	//for i := range value.Len() { // todo test,不行就取value的len
 	//	elem := value.Index(i) //.Elem()
 	//	k := BindKind(elem.Kind())
@@ -319,8 +328,8 @@ type IntegerList struct {
 //}
 
 func marshalMap(b *stream.Buffer, parent *widget.Node[struct2table.StructField]) {
-	//typeOf := reflect.TypeOf(parent.Data.Value.Interface())
-	//value := reflect.Indirect(reflect.ValueOf(parent.Data.Value.Interface()))
+	//typeOf := TypeOf(parent.Data.Value.Interface())
+	//value := Indirect(ValueOf(parent.Data.Value.Interface()))
 	//keys := value.MapKeys()
 	//for i, key := range keys {
 	//	mapElemValue := value.MapIndex(key)
@@ -353,7 +362,7 @@ func marshalMap(b *stream.Buffer, parent *widget.Node[struct2table.StructField])
 	//}
 }
 
-func encodeTagAndWireType[T string | reflect.StructTag](tag T, wireType BaseType) (b *stream.Buffer) {
+func encodeTagAndWireType[T string | StructTag](tag T, wireType BaseType) (b *stream.Buffer) {
 	b = stream.NewBuffer("")
 	b.Write(EncodeTag(string(tag)))
 	b.WriteByte(byte(wireType))
@@ -451,9 +460,9 @@ type singularType interface {
 		~float32 | ~float64 |
 		~string |
 		~[]byte | // 其余类型的切片一般情况下不会存在二维字节切片的字段，所以把一维字节切片视为单一类型
+		time.Time | TimeValue |
 		BlazeObjectType | BlazeObjectId |
-		time.Time | TimeValue
-	// Union | Variable | Enum | Struct | List | Map | Set | todo bug
+		Union | Variable | Enum
 }
 
 // SingularAssert 解码无法让泛型有用武之地,为了避免取值类型不匹配，取值之前需要判断baseType是否匹配
@@ -528,7 +537,7 @@ func unmarshalSingular(buf []byte) (tag string, wireType BaseType, data any) {
 }
 
 func marshalSingular[T singularType](tag string, value T) (b *stream.Buffer) {
-	b = encodeTagAndWireType(tag, NativeTypeBind[reflect.TypeOf(value)])
+	b = encodeTagAndWireType(tag, NativeTypeBind[TypeOf(value)])
 	switch v := any(value).(type) {
 	case bool:
 		if v {
@@ -541,7 +550,7 @@ func marshalSingular[T singularType](tag string, value T) (b *stream.Buffer) {
 			mylog.Check(b.WriteByte(0))
 			return
 		}
-		mylog.Check2(b.Write(compressInteger(reflect.ValueOf(v).Int())))
+		mylog.Check2(b.Write(compressInteger(ValueOf(v).Int())))
 		//oidx := 0
 		//if vv < 0 {
 		//	value = -value
@@ -564,7 +573,7 @@ func marshalSingular[T singularType](tag string, value T) (b *stream.Buffer) {
 		//mylog.Check(mylog.Check2(b.Write(e.mBuf[:oidx])))
 
 	case uint, uint8, uint16, uint32, uint64:
-		reflect.ValueOf(v).Uint()
+		ValueOf(v).Uint()
 	case float32:
 		//if !e.mEncodeHeader || e.encodeHeader(tag, FloatType) {
 		//	if e.w != nil {
@@ -651,57 +660,45 @@ func marshalSingular[T singularType](tag string, value T) (b *stream.Buffer) {
 func (b BaseType) Valid() bool { return b >= 0 && b < MaxType }
 
 type (
-	Union     byte
-	Variable  int
+	Enum     struct{}
+	Union    struct{}
+	Variable struct {
+		// container begin and end?
+	}
 	TimeValue time.Time
 )
 
-var NativeTypeBind = map[reflect.Type]BaseType{
-	reflect.TypeFor[bool]():            IntegerType,
-	reflect.TypeFor[int8]():            IntegerType,
-	reflect.TypeFor[int16]():           IntegerType,
-	reflect.TypeFor[int32]():           IntegerType,
-	reflect.TypeFor[int64]():           IntegerType,
-	reflect.TypeFor[uint8]():           IntegerType,
-	reflect.TypeFor[uint16]():          IntegerType,
-	reflect.TypeFor[uint32]():          IntegerType,
-	reflect.TypeFor[uint64]():          IntegerType,
-	reflect.TypeFor[string]():          StringType,
-	reflect.TypeFor[[]byte]():          BinaryType,   // blob
-	reflect.TypeFor[struct{}]():        StructType,   // java显示tdf就是结构体类型,ID_TERM 0结尾
-	reflect.TypeFor[[]any]():           ListType,     // java显示方法名称为Vector,类型，大小，遍历
-	reflect.TypeFor[map[any]any]():     MapType,      // k v type,size,遍历
-	reflect.TypeFor[Union]():           UnionType,    // todo mock enum
-	reflect.TypeFor[Variable]():        VariableType, // VariableTdfContainer ID_TERM 0结尾
-	reflect.TypeFor[float32]():         FloatType,    // floatToIntBits
-	reflect.TypeFor[float64]():         FloatType,
-	reflect.TypeFor[BlazeObjectType](): BlazeObjectTypeType, // getComponentId and getTypeId  整型编解码,难道是树形的层级下标和孩子节点下标?
-	reflect.TypeFor[BlazeObjectId]():   BlazeObjectIdType,   // getComponentId , getTypeId and getEntityId 整型编解码
-	reflect.TypeFor[time.Time]():       TimeValueType,
+var NativeTypeBind = map[Type]BaseType{
+	TypeFor[bool]():            IntegerType,
+	TypeFor[int8]():            IntegerType,
+	TypeFor[int16]():           IntegerType,
+	TypeFor[int32]():           IntegerType,
+	TypeFor[int64]():           IntegerType,
+	TypeFor[uint8]():           IntegerType,
+	TypeFor[uint16]():          IntegerType,
+	TypeFor[uint32]():          IntegerType,
+	TypeFor[uint64]():          IntegerType,
+	TypeFor[string]():          StringType,
+	TypeFor[[]byte]():          BinaryType,   // blob
+	TypeFor[struct{}]():        StructType,   // java显示tdf就是结构体类型,ID_TERM 0结尾
+	TypeFor[[]any]():           ListType,     // java显示方法名称为Vector,类型，大小，遍历
+	TypeFor[map[any]any]():     MapType,      // k v type,size,遍历
+	TypeFor[Union]():           UnionType,    // todo mock enum
+	TypeFor[Variable]():        VariableType, // VariableTdfContainer ID_TERM 0结尾
+	TypeFor[float32]():         FloatType,    // floatToIntBits
+	TypeFor[float64]():         FloatType,
+	TypeFor[BlazeObjectType](): BlazeObjectTypeType, // getComponentId and getTypeId  整型编解码,难道是树形的层级下标和孩子节点下标?
+	TypeFor[BlazeObjectId]():   BlazeObjectIdType,   // getComponentId , getTypeId and getEntityId 整型编解码
+	TypeFor[time.Time]():       TimeValueType,
 }
 
-type NativeType reflect.Type
+type NativeType Type
 
 var (
-	boolNativeType            NativeType = reflect.TypeFor[bool]()
-	int8NativeType            NativeType = reflect.TypeFor[int8]()
-	int16NativeType           NativeType = reflect.TypeFor[int16]()
-	int32NativeType           NativeType = reflect.TypeFor[int32]()
-	int64NativeType           NativeType = reflect.TypeFor[int64]()
-	uint8NativeType           NativeType = reflect.TypeFor[uint8]()
-	uint16NativeType          NativeType = reflect.TypeFor[uint16]()
-	uint32NativeType          NativeType = reflect.TypeFor[uint32]()
-	uint64NativeType          NativeType = reflect.TypeFor[uint64]()
-	stringNativeType          NativeType = reflect.TypeFor[string]()
-	bytesNativeType           NativeType = reflect.TypeFor[[]byte]()
-	structNativeType          NativeType = reflect.TypeFor[struct{}]()
-	listNativeType            NativeType = reflect.TypeFor[[]any]()
-	mapNativeType             NativeType = reflect.TypeFor[map[any]any]()
-	unionNativeType           NativeType = reflect.TypeFor[Union]()
-	variableNativeType        NativeType = reflect.TypeFor[Variable]()
-	float32NativeType         NativeType = reflect.TypeFor[float32]()
-	float64NativeType         NativeType = reflect.TypeFor[float64]()
-	blazeObjectTypeNativeType NativeType = reflect.TypeFor[BlazeObjectType]()
-	blazeObjectIdNativeType   NativeType = reflect.TypeFor[BlazeObjectId]()
-	timeValueNativeType       NativeType = reflect.TypeFor[time.Time]()
+	BytesNativeType           = TypeFor[[]byte]()
+	UnionNativeType           = TypeFor[Union]()
+	VariableNativeType        = TypeFor[Variable]()
+	BlazeObjectTypeNativeType = TypeFor[BlazeObjectType]()
+	BlazeObjectIdNativeType   = TypeFor[BlazeObjectId]()
+	TimeValueNativeType       = TypeFor[time.Time]()
 )

@@ -76,7 +76,7 @@ func (t BaseType) String() string {
 func (t BaseType) Tooltip() string {
 	switch t {
 	case IntegerType:
-		return "int8,int16,int32,int64,uint8,uint16,uint32,uint64"
+		return "bool,int8,int16,int32,int64,uint8,uint16,uint32,uint64"
 	case StringType:
 		return "string"
 	case BinaryType:

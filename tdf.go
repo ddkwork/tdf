@@ -2,8 +2,8 @@ package tdf
 
 import (
 	"bufio"
-	"bytes"
 	"encoding/binary"
+	"github.com/ddkwork/golibrary/stream"
 	"io"
 	"reflect"
 	"slices"
@@ -15,14 +15,14 @@ import (
 	"github.com/ddkwork/golibrary/mylog"
 )
 
-func Marshal(message any) (buf *bytes.Buffer) {
-	buf = bytes.NewBuffer(nil)
+func Marshal(message any) (buf *stream.Buffer) {
+	buf = stream.NewBuffer("")
 	root := struct2table.New(message)
 	marshalStruct(buf, root)
 	return
 }
 
-func marshalStruct(b *bytes.Buffer, parent *widget.Node[struct2table.StructField]) {
+func marshalStruct(b *stream.Buffer, parent *widget.Node[struct2table.StructField]) {
 	b.Write(encodeTagAndWireType(parent.Data.Tag, StructType).Bytes())
 	defer b.WriteByte(ID_TERM)
 	for _, child := range parent.Children {
@@ -102,7 +102,7 @@ func (t *List) encode() []byte {
 //		}
 //		return List{Node: Node{Label: string(label), Type: List}, Value: value, Subtype: BaseKind(subtype), Length: length}
 //	}
-func marshalList(b *bytes.Buffer, parent *widget.Node[struct2table.StructField]) {
+func marshalList(b *stream.Buffer, parent *widget.Node[struct2table.StructField]) {
 	// typeOf := reflect.TypeOf(parent.Data.Value.Interface())
 	//value := reflect.Indirect(reflect.ValueOf(parent.Data.Value.Interface()))
 	//for i := range value.Len() { // todo test,不行就取value的len
@@ -320,7 +320,7 @@ type IntegerList struct {
 //	return buffer.Bytes()
 //}
 
-func marshalMap(b *bytes.Buffer, parent *widget.Node[struct2table.StructField]) {
+func marshalMap(b *stream.Buffer, parent *widget.Node[struct2table.StructField]) {
 	//typeOf := reflect.TypeOf(parent.Data.Value.Interface())
 	//value := reflect.Indirect(reflect.ValueOf(parent.Data.Value.Interface()))
 	//keys := value.MapKeys()
@@ -355,13 +355,13 @@ func marshalMap(b *bytes.Buffer, parent *widget.Node[struct2table.StructField]) 
 	//}
 }
 
-func encodeTagAndWireType[T string | reflect.StructTag](tag T, wireType BaseType) (b *bytes.Buffer) {
-	b = bytes.NewBuffer(nil)
+func encodeTagAndWireType[T string | reflect.StructTag](tag T, wireType BaseType) (b *stream.Buffer) {
+	b = stream.NewBuffer("")
 	b.Write(EncodeTag(string(tag)))
 	b.WriteByte(byte(wireType))
 	return
 }
-func decodeTagAndWireType(b *bytes.Buffer) (tag string, wireType BaseType) {
+func decodeTagAndWireType(b *stream.Buffer) (tag string, wireType BaseType) {
 	tagBuf := make([]byte, 3)
 	mylog.Check2(b.Read(tagBuf))
 	tag = DecodeTag(tagBuf)
@@ -410,7 +410,7 @@ func EncodeTag(tag string) []byte {
 	return result[1:]
 }
 
-func decompressInteger(b *bytes.Buffer) uint32 {
+func decompressInteger(b *stream.Buffer) uint32 {
 	var result uint64 = 0
 	var currentShift uint64 = 6
 	buffer := make([]byte, 1)
@@ -493,7 +493,7 @@ func (s *SingularAssert) TimeValue() TimeValue             { return s.data.(Time
 
 // 解码二进制预先是不知道类型的，所以这里不限制类型才合理？部分返回值需要断言看来是无法避免的了,或者需要一个统一的断言函数来确保解码安全
 func unmarshalSingular(buf []byte) (tag string, wireType BaseType, data any) {
-	b := bytes.NewBuffer(buf)
+	b := stream.NewBuffer(buf)
 	tag, wireType = decodeTagAndWireType(b)
 	switch wireType {
 	case IntegerType: ///很明显后期按类型取值的时候这里分不清是32位还是64位
@@ -528,7 +528,7 @@ func unmarshalSingular(buf []byte) (tag string, wireType BaseType, data any) {
 	return
 }
 
-func marshalSingular[T singularType](tag string, value T) (b *bytes.Buffer) {
+func marshalSingular[T singularType](tag string, value T) (b *stream.Buffer) {
 	b = encodeTagAndWireType(tag, NativeTypeBind[reflect.TypeOf(value)])
 	switch v := any(value).(type) {
 	case bool:

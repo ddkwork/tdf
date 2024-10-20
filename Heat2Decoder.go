@@ -1,17 +1,17 @@
 package tdf
 
 import (
-	"bytes"
 	"encoding/binary"
 	"github.com/ddkwork/app/widget"
 	"github.com/ddkwork/encoding/struct2table"
 	"github.com/ddkwork/golibrary/mylog"
+	"github.com/ddkwork/golibrary/stream"
 	"io"
 	"math/big"
 )
 
 type Heat2Decoder struct {
-	mByteBuffer   *bytes.Buffer
+	mByteBuffer   *stream.Buffer
 	mTempValue    *big.Int
 	mBuf          []byte
 	mDecodeHeader bool
@@ -25,7 +25,7 @@ type Heat2Decoder struct {
 
 func NewHeat2Decoder(b []byte) (d *Heat2Decoder) {
 	d = &Heat2Decoder{
-		mByteBuffer:   bytes.NewBuffer(b),
+		mByteBuffer:   stream.NewBuffer(b),
 		mTempValue:    big.NewInt(0),
 		mBuf:          make([]byte, HEADER_SIZE),
 		mDecodeHeader: true,

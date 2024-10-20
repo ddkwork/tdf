@@ -11,7 +11,7 @@ import (
 
 func TestGenBaseType(t *testing.T) {
 	g := stream.NewGeneratedFile()
-	m := stream.NewOrderedMap("", "") //todo 更精确的tips,似乎缺少bool的绑定
+	m := stream.NewOrderedMap("", "") //todo 更精确的tips
 	m.Set("Integer", "bool,int8,int16,int32,int64,uint8,uint16,uint32,uint64")
 	m.Set("String", "string")
 	m.Set("Binary", "[]byte")

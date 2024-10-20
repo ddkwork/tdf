@@ -9,11 +9,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ddkwork/golibrary/stream"
-
 	"github.com/ddkwork/app/widget"
 	"github.com/ddkwork/encoding/struct2table"
 	"github.com/ddkwork/golibrary/mylog"
+	"github.com/ddkwork/golibrary/stream"
 )
 
 func Marshal(message any) (buf *stream.Buffer) {

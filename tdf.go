@@ -67,6 +67,7 @@ func marshalStruct(b *stream.Buffer, parent *widget.Node[struct2table.StructFiel
 	}
 }
 func unmarshalStruct() {
+	//todo make tree
 }
 
 func marshalList(b *stream.Buffer, parent *widget.Node[struct2table.StructField]) {
@@ -157,9 +158,9 @@ func marshalMap(b *stream.Buffer, parent *widget.Node[struct2table.StructField])
 	//		var kBuffer []byte
 	//		switch t.KeyType {
 	//		case Integer:
-	//			kBuffer = compressInteger(k.(int)) // 需要实现的函数
+	//			kBuffer = compressInteger(k.(int))
 	//		case String:
-	//			kBuffer = writeString(k.(string)) // 需要实现的函数
+	//			kBuffer = writeString(k.(string))
 	//		default:
 	//			return nil, &NotImplemented{Type: string(t.KeyType)}
 	//		}
@@ -167,9 +168,9 @@ func marshalMap(b *stream.Buffer, parent *widget.Node[struct2table.StructField])
 	//		var vBuffer []byte
 	//		switch t.ValueType {
 	//		case Integer:
-	//			vBuffer = compressInteger(v.(int)) // 需要实现的函数
+	//			vBuffer = compressInteger(v.(int))
 	//		case String:
-	//			vBuffer = writeString(v.(string)) // 需要实现的函数
+	//			vBuffer = writeString(v.(string))
 	//		case Struct:
 	//			// 处理结构体类型的写入
 	//		default:
@@ -181,28 +182,28 @@ func marshalMap(b *stream.Buffer, parent *widget.Node[struct2table.StructField])
 }
 func unmarshalMap() {
 	//func DictionaryRead(label []byte, stream io.Reader) Node {
-	//	keyType := decompressInteger(stream)   // 需要实现的函数
-	//	valueType := decompressInteger(stream) // 需要实现的函数
-	//	length := decompressInteger(stream)    // 需要实现的函数
+	//	keyType := decompressInteger(stream)
+	//	valueType := decompressInteger(stream)
+	//	length := decompressInteger(stream)
 	//	value := make(Dictionary)
 	//	for i := 0; i < length; i++ {
 	//		var key, value any
 	//		switch BaseKind(keyType) {
 	//		case Integer:
-	//			key = decompressInteger(stream) // 需要实现的函数
+	//			key = decompressInteger(stream)
 	//		case String:
-	//			key = readString(stream) // 需要实现的函数
+	//			key = readString(stream)
 	//		default:
 	//			return Node{}, &NotImplemented{Type: string(keyType)}
 	//		}
 	//
 	//		switch BaseKind(valueType) {
 	//		case Integer:
-	//			value = decompressInteger(stream) // 需要实现的函数
+	//			value = decompressInteger(stream)
 	//		case String:
-	//			value = readString(stream) // 需要实现的函数
+	//			value = readString(stream)
 	//		case Struct:
-	//			value = readStruct(stream) // 需要实现的函数
+	//			value = readStruct(stream)
 	//		default:
 	//			return Node{}, &NotImplemented{Type: string(valueType)}
 	//		}

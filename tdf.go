@@ -115,8 +115,22 @@ func marshalList(b *stream.Buffer, parent *widget.Node[struct2table.StructField]
 		}
 	}
 }
-func unmarshalList() {
-
+func unmarshalList(b *stream.Buffer) {
+	listType := BaseType(mylog.Check2(b.ReadByte()))
+	if listType != ListType {
+		mylog.Check("invalid list type") //todo skipElement
+	}
+	length := decompressInteger(b)
+	if length == 0 {
+		return
+	}
+	/* todo 不要解码tag和类型
+	boolean tmpDecodeHeader = mDecodeHeader;
+			mDecodeHeader = false;
+			memberHelper.initializeVector(value, mTempValue.get().intValue());
+			memberHelper.visitMembers(this, rootTdf, parentTdf, tag, value, referenceValue);
+			mDecodeHeader = tmpDecodeHeader;
+	*/
 }
 
 func marshalMap(b *stream.Buffer, parent *widget.Node[struct2table.StructField]) {

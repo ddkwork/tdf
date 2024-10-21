@@ -39,7 +39,7 @@ func marshalStruct(b *stream.Buffer, parent *widget.Node[struct2table.StructFiel
 			b.Append(marshalSingular(string(child.Data.Tag), child.Data.Value.String()))
 		case Slice, Array:
 			if child.Data.Value.Elem().Kind() == Int8 {
-				b.Append(marshalSingular(string(child.Data.Tag), child.Data.ValueAssert.([]byte)))
+				b.Append(marshalSingular(string(child.Data.Tag), child.Data.Value.Bytes()))
 				continue
 			}
 			marshalList(b, child)
@@ -50,7 +50,7 @@ func marshalStruct(b *stream.Buffer, parent *widget.Node[struct2table.StructFiel
 		default:
 			switch child.Data.Type {
 			case BytesNativeType:
-				marshalSingular(string(child.Data.Tag), child.Data.ValueAssert.([]byte))
+				marshalSingular(string(child.Data.Tag), child.Data.Value.Bytes())
 			case UnionNativeType:
 				mylog.Check("union type not supported")
 			case VariableNativeType:

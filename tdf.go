@@ -372,7 +372,7 @@ func unmarshalSingular(buf []byte) (tag string, wireType BaseType, data any) {
 		data = metadataBuf
 	case StructType:
 	case ListType:
-	case MapType:
+	case MapType: //参考java，需要peek一下类型，然后再解码
 	case UnionType:
 		data = mylog.Check2(b.ReadByte())
 	case VariableType:

@@ -39,7 +39,7 @@ func marshalStruct(b *stream.Buffer, parent *widget.Node[struct2table.StructFiel
 		case String:
 			b.Append(marshalSingular(string(child.Data.Tag), child.Data.Value.String()))
 		case Slice, Array:
-			if child.Data.Value.Elem().Kind() == Int8 {
+			if child.Data.Value.Elem().Kind() == Int8 { //todo remove listType ?
 				b.Append(marshalSingular(string(child.Data.Tag), child.Data.Value.Bytes()))
 				continue
 			}
@@ -111,40 +111,13 @@ func (t *List) encode() []byte {
 //		return List{Node: Node{Label: string(label), Type: List}, Value: value, Subtype: BaseKind(subtype), Length: length}
 //	}
 func marshalList(b *stream.Buffer, parent *widget.Node[struct2table.StructField]) {
-	// typeOf := TypeOf(parent.Data.Value.Interface())
-	//value := Indirect(ValueOf(parent.Data.Value.Interface()))
-	//for i := range value.Len() { // todo test,不行就取value的len
-	//	elem := value.Index(i) //.Elem()
-	//	k := BindKind(elem.Kind())
-	//	if !k.IsValid() {
-	//		return b, false
-	//	}
-	//	// todo 这里还可能是结构体切片，所以需要递归处理，marshalStruct marshalMap  marshalList marshalSingular
-	//}
-
-	//if len(*value) == 0 {
-	//	return
-	//}
-	//
-	//if e.w == nil {
-	//	e.mErrorCount++
-	//	return
-	//}
-	//
-	//if e.mEncodeHeader {
-	//	if !e.encodeHeader(tag, TDF_TYPE_LIST) {
-	//		return
-	//	}
-	//}
-
-	//todo
-	//if e.encodeType(vectorHelper.GetValueType()) &&
-	//	e.encodeVarsizeInteger(int64(len(*value))) {
-	//	tmpEncodeHeader := e.mEncodeHeader
-	//	e.mEncodeHeader = false
-	//	vectorHelper.VisitMembers(e, rootTdf, parentTdf, tag, value, referenceValue)
-	//	e.mEncodeHeader = tmpEncodeHeader
-	//}
+	if parent.Data.Value.Len() == 0 {
+		return
+	}
+	for i := range parent.Data.Value.Len() {
+		elemType := parent.Data.Value.Index(i).Type()
+		elemSize := elemType.Size()
+	}
 }
 
 type DictionaryMap map[any]any
@@ -157,27 +130,6 @@ type Dictionary struct {
 	Length    int
 	*bufio.ReadWriter
 }
-
-// UnionRead 从流中读取一个联合类型的 Node
-func UnionRead(label []byte, stream io.Reader) *Union {
-	//unionType := ReadByte
-	//if _ := io.ReadFull(stream, unionType); err != nil {
-	//	return Node{}
-	//}
-	//value := UmMarshal(stream)
-	//return Union{Node: Node{Label: string(label), Type: Union}, UnionType: unionType[0], Value: value}
-	return nil
-}
-
-// Write 将联合类型的 Node 写入流
-//func (t *Union) Write() []byte {
-//	buffer := bytes.Buffer{}
-//	buffer.Write(t.Tag.Marshal())
-//	buffer.WriteByte(t.UnionType)
-//	valueData := t.Value.Write()
-//	buffer.Write(valueData)
-//	return buffer
-//}
 
 // IntegerList 表示整数列表类型的 Node
 type IntegerList struct {
@@ -526,6 +478,7 @@ func unmarshalSingular(buf []byte) (tag string, wireType BaseType, data any) {
 	case ListType:
 	case MapType:
 	case UnionType:
+		data = mylog.Check2(b.ReadByte())
 	case VariableType:
 	case BlazeObjectTypeType:
 	case BlazeObjectIdType:

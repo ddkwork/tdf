@@ -460,7 +460,7 @@ type singularType interface {
 		~float32 | ~float64 |
 		~string |
 		~[]byte | // 其余类型的切片一般情况下不会存在二维字节切片的字段，所以把一维字节切片视为单一类型
-		time.Time | TimeValue |
+		time.Time |
 		BlazeObjectType | BlazeObjectId |
 		Union | Variable | Enum
 }
@@ -491,7 +491,7 @@ func (s *SingularAssert) Bytes() []byte                    { return s.data.([]by
 func (s *SingularAssert) Time() time.Time                  { return s.data.(time.Time) }
 func (s *SingularAssert) BlazeObjectId() BlazeObjectId     { return s.data.(BlazeObjectId) }
 func (s *SingularAssert) BlazeObjectType() BlazeObjectType { return s.data.(BlazeObjectType) }
-func (s *SingularAssert) TimeValue() TimeValue             { return s.data.(TimeValue) }
+func (s *SingularAssert) TimeValue() time.Time             { return s.data.(time.Time) }
 
 // 更安全的做法是这里先解码tag和类型并传入类型，然后改成泛型函数，类型就安全了
 // 在构造树节点的时候传入类型返回对应类型的值，然后填充节点元数据?
@@ -546,34 +546,9 @@ func marshalSingular[T singularType](tag string, value T) (b *stream.Buffer) {
 		}
 		b.WriteByte(0)
 	case int, int8, int16, int32, int64:
-		if v == 0 {
-			mylog.Check(b.WriteByte(0))
-			return
-		}
 		mylog.Check2(b.Write(compressInteger(ValueOf(v).Int())))
-		//oidx := 0
-		//if vv < 0 {
-		//	value = -value
-		//
-		//	// encode as a negative value
-		//	e.mBuf[oidx] = byte(vv | (VARSIZE_MORE | VARSIZE_NEGATIVE))
-		//	oidx++
-		//} else {
-		//	e.mBuf[oidx] = byte(vv&(VARSIZE_NEGATIVE-1)) | VARSIZE_MORE
-		//	oidx++
-		//}
-		//vv >>= 6
-		//
-		//for vv > 0 {
-		//	e.mBuf[oidx] = byte(vv | VARSIZE_MORE)
-		//	oidx++
-		//	vv >>= 7
-		//}
-		//e.mBuf[oidx-1] &= ^byte(VARSIZE_MORE)
-		//mylog.Check(mylog.Check2(b.Write(e.mBuf[:oidx])))
-
 	case uint, uint8, uint16, uint32, uint64:
-		ValueOf(v).Uint()
+		mylog.Check2(b.Write(compressInteger(ValueOf(v).Uint())))
 	case float32:
 		//if !e.mEncodeHeader || e.encodeHeader(tag, FloatType) {
 		//	if e.w != nil {
@@ -650,7 +625,7 @@ func marshalSingular[T singularType](tag string, value T) (b *stream.Buffer) {
 		//	//	e.encodeVarsizeInteger(value.GetEntityId())
 		//	//}
 		//}
-	case TimeValue:
+	case time.Time:
 		// e.encodeHeaderAndVarsizeInteger(tag, value.GetMicroSeconds())
 	}
 
@@ -665,7 +640,6 @@ type (
 	Variable struct {
 		// container begin and end?
 	}
-	TimeValue time.Time
 )
 
 var NativeTypeBind = map[Type]BaseType{

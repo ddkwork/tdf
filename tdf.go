@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/binary"
 	"io"
+	"math"
 	. "reflect"
 	"slices"
 	"strings"
@@ -550,31 +551,13 @@ func marshalSingular[T singularType](tag string, value T) (b *stream.Buffer) {
 	case uint, uint8, uint16, uint32, uint64:
 		mylog.Check2(b.Write(compressInteger(ValueOf(v).Uint())))
 	case float32:
-		//if !e.mEncodeHeader || e.encodeHeader(tag, FloatType) {
-		//	if e.w != nil {
-		//		tmpValue := math.Float32bits(value)
-		//		mBuf := make([]byte, FLOAT_SIZE)
-		//		mBuf[0] = byte(tmpValue >> 24)
-		//		mBuf[1] = byte(tmpValue >> 16)
-		//		mBuf[2] = byte(tmpValue >> 8)
-		//		mBuf[3] = byte(tmpValue)
-		//		mylog.Check(binary.Write(e.w, binary.BigEndian, mBuf))
-		//
-		//	}
-		//}
+		mBuf := make([]byte, FLOAT_SIZE)
+		binary.LittleEndian.PutUint32(mBuf, math.Float32bits(v))
+		b.Write(slices.Concat(mBuf, []byte{0}))
 	case float64:
-		//if !e.mEncodeHeader || e.encodeHeader(tag, FloatType) {
-		//	if e.w != nil {
-		//		tmpValue := math.Float64bits(value)
-		//		mBuf := make([]byte, FLOAT_SIZE)
-		//		mBuf[0] = byte(tmpValue >> 24)
-		//		mBuf[1] = byte(tmpValue >> 16)
-		//		mBuf[2] = byte(tmpValue >> 8)
-		//		mBuf[3] = byte(tmpValue)
-		//		mylog.Check(binary.Write(e.w, binary.BigEndian, mBuf))
-		//
-		//	}
-		//}
+		mBuf := make([]byte, FLOAT_SIZE)
+		binary.LittleEndian.PutUint64(mBuf, math.Float64bits(v))
+		b.Write(slices.Concat(mBuf, []byte{0}))
 	case string:
 		b.Write(slices.Concat(compressInteger(uint64(len(v)+1)), []byte(v), []byte{0}))
 	case []byte: // blob

@@ -1,7 +1,6 @@
 package tdf
 
 import (
-	"bufio"
 	"encoding/binary"
 	"io"
 	"math"
@@ -67,49 +66,9 @@ func marshalStruct(b *stream.Buffer, parent *widget.Node[struct2table.StructFiel
 		}
 	}
 }
-
-type List struct {
-	Value   any // todo 限制类型
-	Subtype BaseType
-	Length  int
-	*bufio.ReadWriter
+func unmarshalStruct() {
 }
 
-func (t *List) encode() []byte {
-	// buffer := bytes.Buffer{}
-	// buffer.Write(t.Tag.Marshal())
-	// buffer.WriteByte(byte(t.Subtype))
-	// buffer.Write(compressInteger(t.Length))
-
-	// 处理每个子项的写入
-	// 需根据具体类型处理，伪代码如下：
-	// switch t.Subtype {
-	// case Integer:
-	//     for _, v := range t.Fields.([]int) {
-	//         buffer.Write(compressInteger(v))
-	//     }
-	// ...
-	// }
-	// return buffer
-	return nil
-}
-
-//	func ListRead(label []byte, stream io.Reader) Node {
-//		subtype := decompressInteger(stream) // 需要实现的函数
-//		length := decompressInteger(stream)  // 需要实现的函数
-//		var value any
-//		switch BaseKind(subtype) {
-//		case Integer:
-//			value = decodeIntegerList(stream, length) // 需要实现的函数
-//		case String:
-//			value = decodeStringList(stream, length) // 需要实现的函数
-//		case Struct:
-//			value = readStructList(stream, length) // 需要实现的函数
-//		default:
-//			return Node{}, &NotImplemented{Type: string(subtype)}
-//		}
-//		return List{Node: Node{Label: string(label), Type: List}, Value: value, Subtype: BaseKind(subtype), Length: length}
-//	}
 func marshalList(b *stream.Buffer, parent *widget.Node[struct2table.StructField]) {
 	if parent.Data.Value.Len() == 0 {
 		return
@@ -117,202 +76,127 @@ func marshalList(b *stream.Buffer, parent *widget.Node[struct2table.StructField]
 	for i := range parent.Data.Value.Len() {
 		elemType := parent.Data.Value.Index(i).Type()
 		elemSize := elemType.Size()
+		elemValue := parent.Data.Value.Index(i).Interface()
+		switch elemType.Kind() {
+		case Int, Int8, Int16, Int32, Int64:
+			b.Append(marshalSingular(string(parent.Data.Tag), elemValue))
+		case Uint, Uint8, Uint16, Uint32, Uint64:
+			b.Append(marshalSingular(string(parent.Data.Tag), elemValue))
+		case Float32, Float64:
+			b.Append(marshalSingular(string(parent.Data.Tag), elemValue))
+		case String:
+			b.Append(marshalSingular(string(parent.Data.Tag), elemValue))
+		case Slice, Array:
+			if elemType.Elem().Kind() == Int8 { //todo remove listType ?
+				b.Append(marshalSingular(string(parent.Data.Tag), elemValue))
+				continue
+			}
+			marshalList(b, parent.Children[i])
+		case Map:
+			marshalMap(b, parent.Children[i])
+		case Struct:
+			marshalStruct(b, parent.Children[i])
+		default:
+			switch parent.Data.Type {
+			case BytesNativeType:
+				marshalSingular(string(parent.Data.Tag), elemValue)
+			case UnionNativeType:
+				mylog.Check("union type not supported")
+			case VariableNativeType:
+				mylog.Check("variable type not supported")
+			case BlazeObjectTypeNativeType:
+				mylog.Check("blazeObjectId type not supported")
+			case BlazeObjectIdNativeType:
+				mylog.Check("blazeObjectId type not supported")
+			case TimeValueNativeType:
+				b.Append(marshalSingular(string(parent.Data.Tag), elemValue))
+			}
+			mylog.Check("unsupported type")
+		}
 	}
 }
+func unmarshalList() {
 
-type DictionaryMap map[any]any
-
-// Dictionary 表示字典类型的 Node
-type Dictionary struct {
-	Value     DictionaryMap
-	KeyType   BaseType
-	ValueType BaseType
-	Length    int
-	*bufio.ReadWriter
 }
-
-// IntegerList 表示整数列表类型的 Node
-type IntegerList struct {
-	Value []int
-	*bufio.ReadWriter
-}
-
-// IntegerListRead 从流中读取一个整数列表类型的 Node
-//func IntegerListRead(label []byte, stream io.Reader) IntegerList {
-//	length := decompressInteger(stream) // 需要实现的函数
-//	values := make([]int, length)
-//	for i := 0; i < length; i++ {
-//		values[i] = decompressInteger(stream) // 需要实现的函数
-//	}
-//	return IntegerList{Node: Node{Label: string(label), Type: IntegerList}, Value: values}
-//}
-//
-//// Write 将整数列表类型的 Node 写入流
-//func (t *IntegerList) Write() []byte {
-//	buffer := bytes.Buffer{}
-//	buffer.Write(t.Tag.Marshal())
-//	buffer.Write(compressInteger(len(t.Value))) // 需要实现的函数
-//	for _, value := range t.Value {
-//		buffer.Write(compressInteger(value)) // 需要实现的函数
-//	}
-//	return buffer
-//}
-
-// DictionaryRead 从流中读取一个字典类型的 Node
-//func DictionaryRead(label []byte, stream io.Reader) Node {
-//	keyType := decompressInteger(stream)   // 需要实现的函数
-//	valueType := decompressInteger(stream) // 需要实现的函数
-//	length := decompressInteger(stream)    // 需要实现的函数
-//	value := make(Dictionary)
-//	for i := 0; i < length; i++ {
-//		var key, value any
-//		switch BaseKind(keyType) {
-//		case Integer:
-//			key = decompressInteger(stream) // 需要实现的函数
-//		case String:
-//			key = readString(stream) // 需要实现的函数
-//		default:
-//			return Node{}, &NotImplemented{Type: string(keyType)}
-//		}
-//
-//		switch BaseKind(valueType) {
-//		case Integer:
-//			value = decompressInteger(stream) // 需要实现的函数
-//		case String:
-//			value = readString(stream) // 需要实现的函数
-//		case Struct:
-//			value = readStruct(stream) // 需要实现的函数
-//		default:
-//			return Node{}, &NotImplemented{Type: string(valueType)}
-//		}
-//		value[key] = value
-//	}
-//	return Dictionary{Node: Node{Label: string(label), Type: Dictionary}, KeyType: BaseKind(keyType), ValueType: BaseKind(valueType), Length: length, Value: value}
-//}
-//
-//// Write 将字典类型的 Node 写入流
-//func (t *Dictionary) Write() []byte {
-//	buffer := bytes.Buffer{}
-//	buffer.Write(t.Tag.Marshal())
-//	buffer.WriteByte(byte(t.KeyType))
-//	buffer.WriteByte(byte(t.ValueType))
-//	buffer.Write(compressInteger(t.Length)) // 需要实现的函数
-//
-//	for k, v := range t.Value {
-//		var kBuffer []byte
-//		switch t.KeyType {
-//		case Integer:
-//			kBuffer = compressInteger(k.(int)) // 需要实现的函数
-//		case String:
-//			kBuffer = writeString(k.(string)) // 需要实现的函数
-//		default:
-//			return nil, &NotImplemented{Type: string(t.KeyType)}
-//		}
-//
-//		var vBuffer []byte
-//		switch t.ValueType {
-//		case Integer:
-//			vBuffer = compressInteger(v.(int)) // 需要实现的函数
-//		case String:
-//			vBuffer = writeString(v.(string)) // 需要实现的函数
-//		case Struct:
-//			// 处理结构体类型的写入
-//		default:
-//			return nil, &NotImplemented{Type: string(t.ValueType)}
-//		}
-//		buffer.Write(kBuffer)
-//		buffer.Write(vBuffer)
-//	}
-//
-//	return buffer
-//}
-
-// IntVector2 表示二维整数向量类型的 Node
-//type IntVector2 struct {
-//	Tag
-//	Value []int
-//	*bufio.ReadWriter
-//}
-//
-//// IntVector2Read 从流中读取一个二维整数向量类型的 Node
-//func IntVector2Read(label []byte, stream io.Reader) Node {
-//	result := make([]int, 2)
-//	for i := 0; i < 2; i++ {
-//		value := decompressInteger(stream) // 需要实现的函数
-//		result[i] = value
-//	}
-//	return IntVector2{Node: Node{Label: string(label), Type: IntVector2}, Value: result}
-//}
-//
-//// Write 将二维整数向量类型的 Node 写入流
-//func (t *IntVector2) Write() []byte {
-//	buffer := bytes.Buffer{}
-//	buffer.Write(t.Tag.Marshal())
-//	buffer.Write(compressInteger(t.Value[0])) // 需要实现的函数
-//	buffer.Write(compressInteger(t.Value[1])) // 需要实现的函数
-//	return buffer
-//}
-//
-//// IntVector3 表示三维整数向量类型的 Node
-//type IntVector3 struct {
-//	Tag
-//	Value []int
-//	*bufio.ReadWriter
-//}
-//
-//// IntVector3Read 从流中读取一个三维整数向量类型的 Node
-//func IntVector3Read(label []byte, stream io.Reader) Node {
-//	result := make([]int, 3)
-//	for i := 0; i < 3; i++ {
-//		value := decompressInteger(stream) // 需要实现的函数
-//		result[i] = value
-//	}
-//	return IntVector3{Node: Node{Label: string(label), Type: IntVector3}, Value: result}
-//}
-//
-//// Write 将三维整数向量类型的 Node 写入流
-//func (t *IntVector3) Write() []byte {
-//	buffer := bytes.Buffer{}
-//	buffer.Write(t.Tag.Marshal())
-//	buffer.Write(compressInteger(t.Value[0])) // 需要实现的函数
-//	buffer.Write(compressInteger(t.Value[1])) // 需要实现的函数
-//	buffer.Write(compressInteger(t.Value[2])) // 需要实现的函数
-//	return buffer
-//}
 
 func marshalMap(b *stream.Buffer, parent *widget.Node[struct2table.StructField]) {
-	//typeOf := TypeOf(parent.Data.Value.Interface())
-	//value := Indirect(ValueOf(parent.Data.Value.Interface()))
-	//keys := value.MapKeys()
-	//for i, key := range keys {
-	//	mapElemValue := value.MapIndex(key)
-	//	//todo  识别每个kv的类型并switch
-	//}
+	value := parent.Data.Value
+	if value.Len() == 0 {
+		return
+	}
+	keys := value.MapKeys()
+	for i, key := range keys {
+		mapElemValue := value.MapIndex(key)
 
-	//if len(*value) == 0 {
-	//	return
-	//}
-	//
-	//if e.w == nil {
-	//	e.mErrorCount++
-	//	return
-	//}
-	//
-	//if e.mEncodeHeader {
-	//	if !e.encodeHeader(tag, TDF_TYPE_MAP) {
-	//		return
-	//	}
-	//}
-
+	}
 	//todo
 	//if e.encodeType(mapHelper.GetKeyType()) &&
 	//	e.encodeType(mapHelper.GetValueType()) &&
 	//	e.encodeVarsizeInteger(int64(len(*value))) {
-	//	tmpEncodeHeader := e.mEncodeHeader
+	//	tmpEncodeHeader := e.mEncodeHeader //elem不需要编解码tag和wireType
 	//	e.mEncodeHeader = false
 	//	mapHelper.VisitMembers(e, rootTdf, parentTdf, tag, value, referenceValue)
 	//	e.mEncodeHeader = tmpEncodeHeader
 	//}
+
+	//	for k, v := range t.Value {
+	//		var kBuffer []byte
+	//		switch t.KeyType {
+	//		case Integer:
+	//			kBuffer = compressInteger(k.(int)) // 需要实现的函数
+	//		case String:
+	//			kBuffer = writeString(k.(string)) // 需要实现的函数
+	//		default:
+	//			return nil, &NotImplemented{Type: string(t.KeyType)}
+	//		}
+	//
+	//		var vBuffer []byte
+	//		switch t.ValueType {
+	//		case Integer:
+	//			vBuffer = compressInteger(v.(int)) // 需要实现的函数
+	//		case String:
+	//			vBuffer = writeString(v.(string)) // 需要实现的函数
+	//		case Struct:
+	//			// 处理结构体类型的写入
+	//		default:
+	//			return nil, &NotImplemented{Type: string(t.ValueType)}
+	//		}
+	//		buffer.Write(kBuffer)
+	//		buffer.Write(vBuffer)
+	//	}
+}
+func unmarshalMap() {
+	//func DictionaryRead(label []byte, stream io.Reader) Node {
+	//	keyType := decompressInteger(stream)   // 需要实现的函数
+	//	valueType := decompressInteger(stream) // 需要实现的函数
+	//	length := decompressInteger(stream)    // 需要实现的函数
+	//	value := make(Dictionary)
+	//	for i := 0; i < length; i++ {
+	//		var key, value any
+	//		switch BaseKind(keyType) {
+	//		case Integer:
+	//			key = decompressInteger(stream) // 需要实现的函数
+	//		case String:
+	//			key = readString(stream) // 需要实现的函数
+	//		default:
+	//			return Node{}, &NotImplemented{Type: string(keyType)}
+	//		}
+	//
+	//		switch BaseKind(valueType) {
+	//		case Integer:
+	//			value = decompressInteger(stream) // 需要实现的函数
+	//		case String:
+	//			value = readString(stream) // 需要实现的函数
+	//		case Struct:
+	//			value = readStruct(stream) // 需要实现的函数
+	//		default:
+	//			return Node{}, &NotImplemented{Type: string(valueType)}
+	//		}
+	//		value[key] = value
+	//	}
+	//	return Dictionary{Node: Node{Label: string(label), Type: Dictionary}, KeyType: BaseKind(keyType), ValueType: BaseKind(valueType), Length: length, Value: value}
+	//}
+	//
 }
 
 func encodeTagAndWireType[T string | StructTag](tag T, wireType BaseType) (b *stream.Buffer) {
@@ -321,7 +205,6 @@ func encodeTagAndWireType[T string | StructTag](tag T, wireType BaseType) (b *st
 	b.WriteByte(byte(wireType))
 	return
 }
-
 func decodeTagAndWireType(b *stream.Buffer) (tag string, wireType BaseType) {
 	tagBuf := make([]byte, 3)
 	mylog.Check2(b.Read(tagBuf))
@@ -349,7 +232,6 @@ func DecodeTag(tag []byte) string {
 	}
 	return string(decodedTag)
 }
-
 func EncodeTag(tag string) []byte {
 	if len(tag) != 4 {
 		mylog.Check("tag must be 4 characters long")
@@ -386,7 +268,6 @@ func decompressInteger(b *stream.Buffer) uint32 {
 	}
 	return uint32(result)
 }
-
 func compressInteger[T int64 | uint64](value T) []byte {
 	var result []byte
 	if value < 0x40 {
@@ -489,7 +370,6 @@ func unmarshalSingular(buf []byte) (tag string, wireType BaseType, data any) {
 	}
 	return
 }
-
 func marshalSingular[T singularType](tag string, value T) (b *stream.Buffer) {
 	b = encodeTagAndWireType(tag, NativeTypeBind[TypeOf(value)])
 	switch v := any(value).(type) {

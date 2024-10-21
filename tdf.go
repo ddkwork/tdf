@@ -564,42 +564,32 @@ func marshalSingular[T singularType](tag string, value T) (b *stream.Buffer) {
 		b.Write(slices.Concat(compressInteger(uint64(len(v))), v))
 	case Union: // todo add enum ?
 		b.WriteByte(v.activeMember)
-	case Variable:
-		// if !e.mEncodeHeader || e.encodeHeader(tag, TDF_TYPE_VARIABLE) {
-		//	mylog.Check(binary.Write(e.w, binary.BigEndian, byte(0)))
-
-		//	mylog.Check(
-		//if !value.Get().IsRegisteredTdf() {
-		//	fmt.Println("Failure: Attempting to encode unregistered TDF as a variable TDF.")
-		//	e.mErrorCount++
-		//	return false
-		//}
-		//
-		//if e.encodeVarsizeInteger(value.Get().GetTdfId()) {
-		//	e.Visit(rootTdf, parentTdf, tag, value.Get(), value.Get())
-		//}
-
-		// Place a struct terminator at the end of the encoding to allow for easy skipping on
-		// the decode side.
-		//	binary.Write(e.w, binary.BigEndian, ID_TERM))
-	//	}
+	case Variable: //VariableTdfContainer
+		if v.valid {
+			b.WriteByte(1)
+		} else {
+			b.WriteByte(0)
+		}
+		if v.valid {
+			b.Write(compressInteger(v.id))
+			//todo how to visit value?
+		}
+		b.WriteByte(ID_TERM)
 	case BlazeObjectType:
-		//if !e.mEncodeHeader || e.encodeHeader(tag, TDF_TYPE_BLAZE_OBJECT_TYPE) { // todo
-		//	//if e.encodeVarsizeInteger(int64(value.GetComponentId())) {
+		//	//if e.encodeVarsizeInteger(int64(value.GetComponentId())) {//todo
 		//	//	e.encodeVarsizeInteger(int64(value.GetTypeId()))
 		//	//}
-		//}
+		b.Write(slices.Concat(compressInteger(uint64(v.ComponentID)), compressInteger(uint64(v.TypeID))))
 	case BlazeObjectId:
-		//if !e.mEncodeHeader || e.encodeHeader(tag, TDF_TYPE_BLAZE_OBJECT_ID) { // todo
-		//	//if e.encodeVarsizeInteger(int64(value.GetType().GetComponentId())) &&
+		//	//if e.encodeVarsizeInteger(int64(value.GetType().GetComponentId())) &&//todo
 		//	//	e.encodeVarsizeInteger(int64(value.GetType().GetTypeId())) {
 		//	//	e.encodeVarsizeInteger(value.GetEntityId())
 		//	//}
-		//}
+		b.Write(slices.Concat(compressInteger(uint64(v.GetType().ComponentID)), compressInteger(uint64(v.GetType().TypeID)), compressInteger(v.GetEntityId())))
 	case time.Time:
-		// e.encodeHeaderAndVarsizeInteger(tag, value.GetMicroSeconds())
+		//b.Write(compressInteger(uint64(v.Second())))
+		b.Write(compressInteger(uint64(v.UnixMicro())))
 	}
-
 	return
 }
 
@@ -611,7 +601,9 @@ type (
 		activeMember byte
 	}
 	Variable struct {
-		// container begin and end?
+		value int64
+		id    int64
+		valid bool
 	}
 )
 

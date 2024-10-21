@@ -561,8 +561,7 @@ func marshalSingular[T singularType](tag string, value T) (b *stream.Buffer) {
 	case string:
 		b.Write(slices.Concat(compressInteger(uint64(len(v)+1)), []byte(v), []byte{0}))
 	case []byte: // blob
-		b.WriteByte(byte(len(v)))
-		b.Write(v)
+		b.Write(slices.Concat(compressInteger(uint64(len(v))), v))
 	case Union: // todo add enum ?
 		// e.visit(tag, value, referenceValue, defaultValue.getValue())
 

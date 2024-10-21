@@ -563,18 +563,7 @@ func marshalSingular[T singularType](tag string, value T) (b *stream.Buffer) {
 	case []byte: // blob
 		b.Write(slices.Concat(compressInteger(uint64(len(v))), v))
 	case Union: // todo add enum ?
-		// e.visit(tag, value, referenceValue, defaultValue.getValue())
-
-		//if !e.mEncodeHeader || e.encodeHeader(tag, TDF_TYPE_UNION) {
-		//err := binary.Write(e.w, binary.BigEndian, byte(value.GetActiveMember())) //todo
-		//if err != nil {
-		//	fmt.Println("IO error writing union active member: " + err.Error())
-		//	e.mErrorCount++
-		//}
-
-		// value.Visit(e, rootTdf, value) //todo
-	//	}
-
+		b.WriteByte(v.activeMember)
 	case Variable:
 		// if !e.mEncodeHeader || e.encodeHeader(tag, TDF_TYPE_VARIABLE) {
 		//	mylog.Check(binary.Write(e.w, binary.BigEndian, byte(0)))
@@ -617,8 +606,10 @@ func marshalSingular[T singularType](tag string, value T) (b *stream.Buffer) {
 func (b BaseType) Valid() bool { return b >= 0 && b < MaxType }
 
 type (
-	Enum     struct{}
-	Union    struct{}
+	Enum  struct{}
+	Union struct {
+		activeMember byte
+	}
 	Variable struct {
 		// container begin and end?
 	}

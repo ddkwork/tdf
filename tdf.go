@@ -354,7 +354,7 @@ func unmarshalSingular(buf []byte) (tag string, wireType BaseType, data any) {
 	tag, wireType = decodeTagAndWireType(b)
 	switch wireType {
 	case IntegerType: ///很明显后期按类型取值的时候这里分不清是32位还是64位
-		data = decompressInteger(b)
+		data = decompressInteger(b) //todo 如何确定是bool类型
 	case StringType:
 		length := decompressInteger(b)
 		result := make([]byte, length-1)

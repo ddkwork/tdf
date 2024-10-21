@@ -52,13 +52,13 @@ func marshalStruct(b *stream.Buffer, parent *widget.Node[struct2table.StructFiel
 			case BytesNativeType:
 				marshalSingular(string(child.Data.Tag), child.Data.Value.Bytes())
 			case UnionNativeType:
-				mylog.Check("union type not supported")
+				marshalSingular(string(child.Data.Tag), child.Data.ValueAssert.(*Union))
 			case VariableNativeType:
-				mylog.Check("variable type not supported")
+				marshalSingular(string(child.Data.Tag), child.Data.ValueAssert.(*Variable))
 			case BlazeObjectTypeNativeType:
-				mylog.Check("blazeObjectId type not supported")
+				marshalSingular(string(child.Data.Tag), child.Data.ValueAssert.(*BlazeObjectType))
 			case BlazeObjectIdNativeType:
-				mylog.Check("blazeObjectId type not supported")
+				marshalSingular(string(child.Data.Tag), child.Data.ValueAssert.(*BlazeObjectId))
 			case TimeValueNativeType:
 				b.Append(marshalSingular(string(child.Data.Tag), child.Data.ValueAssert.(time.Time).UnixNano()))
 			}
@@ -295,8 +295,8 @@ type singularType interface {
 		~string |
 		~[]byte | // 其余类型的切片一般情况下不会存在二维字节切片的字段，所以把一维字节切片视为单一类型
 		time.Time |
-		BlazeObjectType | BlazeObjectId |
-		Union | Variable | Enum
+		*BlazeObjectType | *BlazeObjectId |
+		*Union | *Variable | *Enum
 }
 
 // SingularAssert 解码无法让泛型有用武之地,为了避免取值类型不匹配，取值之前需要判断baseType是否匹配

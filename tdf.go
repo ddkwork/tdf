@@ -75,40 +75,38 @@ func marshalStruct(b *stream.Buffer, parent *widget.Node[struct2table.StructFiel
 }
 
 func unmarshalStruct(b *stream.Buffer, parent *widget.Node[struct2table.StructField]) {
-	for {
-		tag, wireType := decodeTagAndWireType(b)
-		switch wireType {
-		// case BoolType:
-		//	parent.Data.Value.SetBool(unmarshalSingular(b, tag).Bool())
-		// case IntType:
-		//	parent.Data.Value.SetInt(unmarshalSingular(b, tag).Int())
-		// case UintType:
-		//	parent.Data.Value.SetUint(unmarshalSingular(b, tag).Uint())
-		// case FloatType:
-		//	parent.Data.Value.SetFloat(unmarshalSingular(b, tag).Float())
-		// case StringType:
-		//	parent.Data.Value.SetString(unmarshalSingular(b, tag).String())
-		// case BinaryType:
-		//	parent.Data.Value.SetBytes(unmarshalSingular(b, tag).Bytes())
-		case ListType:
-			unmarshalList(b)
-		case MapType:
-			unmarshalMap()
-		case StructType:
-			container := widget.NewContainerNode(parent.Data.Name, struct2table.StructField{})
-			parent.AddChild(container)
-			unmarshalStruct(b, container)
-		default:
-			parent.AddChildByData(struct2table.StructField{
-				Number:      0,
-				Name:        "",
-				Type:        nil,
-				Kind:        0,
-				Tag:         StructTag(tag),
-				Value:       Value{},
-				ValueAssert: nil,
-			})
-		}
+	tag, wireType := decodeTagAndWireType(b)
+	switch wireType {
+	// case BoolType:
+	//	parent.Data.Value.SetBool(unmarshalSingular(b, tag).Bool())
+	// case IntType:
+	//	parent.Data.Value.SetInt(unmarshalSingular(b, tag).Int())
+	// case UintType:
+	//	parent.Data.Value.SetUint(unmarshalSingular(b, tag).Uint())
+	// case FloatType:
+	//	parent.Data.Value.SetFloat(unmarshalSingular(b, tag).Float())
+	// case StringType:
+	//	parent.Data.Value.SetString(unmarshalSingular(b, tag).String())
+	// case BinaryType:
+	//	parent.Data.Value.SetBytes(unmarshalSingular(b, tag).Bytes())
+	case ListType:
+		unmarshalList(b, parent)
+	case MapType:
+		unmarshalMap(b, parent)
+	case StructType:
+		container := widget.NewContainerNode(parent.Data.Name, struct2table.StructField{})
+		parent.AddChild(container)
+		unmarshalStruct(b, container)
+	default:
+		parent.AddChildByData(struct2table.StructField{
+			Number:      0,
+			Name:        "",
+			Type:        nil,
+			Kind:        0,
+			Tag:         StructTag(tag),
+			Value:       Value{},
+			ValueAssert: nil,
+		})
 	}
 }
 
@@ -160,7 +158,7 @@ func marshalList(b *stream.Buffer, parent *widget.Node[struct2table.StructField]
 	}
 }
 
-func unmarshalList(b *stream.Buffer) {
+func unmarshalList(b *stream.Buffer, parent *widget.Node[struct2table.StructField]) {
 	listType := BaseType(mylog.Check2(b.ReadByte()))
 	if listType != ListType {
 		mylog.Check("invalid list type") // todo skipElement
@@ -225,7 +223,7 @@ func marshalMap(b *stream.Buffer, parent *widget.Node[struct2table.StructField])
 	//	}
 }
 
-func unmarshalMap() {
+func unmarshalMap(b *stream.Buffer, parent *widget.Node[struct2table.StructField]) {
 	//func DictionaryRead(label []byte, stream io.Reader) Node {
 	//	keyType := decompressInteger(stream)
 	//	valueType := decompressInteger(stream)

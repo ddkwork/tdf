@@ -38,7 +38,7 @@ func marshalStruct(b *stream.Buffer, parent *widget.Node[struct2table.StructFiel
 		case String:
 			b.Append(marshalSingular(child.Data.Tag, child.Data.Value.String()))
 		case Slice, Array:
-			if child.Data.Value.Elem().Kind() == Int8 { //todo remove listType ?
+			if child.Data.Value.Elem().Kind() == Int8 { // todo remove listType ?
 				b.Append(marshalSingular(child.Data.Tag, child.Data.Value.Bytes()))
 				continue
 			}
@@ -66,8 +66,9 @@ func marshalStruct(b *stream.Buffer, parent *widget.Node[struct2table.StructFiel
 		}
 	}
 }
+
 func unmarshalStruct() {
-	//todo make tree
+	// todo make tree
 }
 
 func marshalList(b *stream.Buffer, parent *widget.Node[struct2table.StructField]) {
@@ -89,7 +90,7 @@ func marshalList(b *stream.Buffer, parent *widget.Node[struct2table.StructField]
 		case String:
 			b.Append(marshalSingular(parent.Data.Tag, elemValueOf.String()))
 		case Slice, Array:
-			if elemType.Elem().Kind() == Int8 { //todo remove listType ?
+			if elemType.Elem().Kind() == Int8 { // todo remove listType ?
 				b.Append(marshalSingular(parent.Data.Tag, elemValueOf.Bytes()))
 				continue
 			}
@@ -117,10 +118,11 @@ func marshalList(b *stream.Buffer, parent *widget.Node[struct2table.StructField]
 		}
 	}
 }
+
 func unmarshalList(b *stream.Buffer) {
 	listType := BaseType(mylog.Check2(b.ReadByte()))
 	if listType != ListType {
-		mylog.Check("invalid list type") //todo skipElement
+		mylog.Check("invalid list type") // todo skipElement
 	}
 	length := decompressInteger(b)
 	if length == 0 {
@@ -181,6 +183,7 @@ func marshalMap(b *stream.Buffer, parent *widget.Node[struct2table.StructField])
 	//		buffer.Write(vBuffer)
 	//	}
 }
+
 func unmarshalMap() {
 	//func DictionaryRead(label []byte, stream io.Reader) Node {
 	//	keyType := decompressInteger(stream)
@@ -221,6 +224,7 @@ func encodeTagAndWireType[T string | StructTag](tag T, wireType BaseType) (b *st
 	b.WriteByte(byte(wireType))
 	return
 }
+
 func decodeTagAndWireType(b *stream.Buffer) (tag string, wireType BaseType) {
 	tagBuf := make([]byte, 3)
 	mylog.Check2(b.Read(tagBuf))
@@ -248,6 +252,7 @@ func DecodeTag(tag []byte) string {
 	}
 	return string(decodedTag)
 }
+
 func EncodeTag(tag string) []byte {
 	if len(tag) != 4 {
 		mylog.Check("tag must be 4 characters long")
@@ -284,6 +289,7 @@ func decompressInteger(b *stream.Buffer) uint32 {
 	}
 	return uint32(result)
 }
+
 func compressInteger[T int64 | uint64](value T) []byte {
 	var result []byte
 	if value < 0x40 {
@@ -355,7 +361,7 @@ func unmarshalSingular(buf []byte) (tag string, wireType BaseType, data any) {
 	tag, wireType = decodeTagAndWireType(b)
 	switch wireType {
 	case IntegerType: ///很明显后期按类型取值的时候这里分不清是32位还是64位
-		data = decompressInteger(b) //todo 如何确定是bool类型,不使用idt文件我看是确认不了类型的
+		data = decompressInteger(b) // todo 如何确定是bool类型,不使用idt文件我看是确认不了类型的
 	case StringType:
 		length := decompressInteger(b)
 		result := make([]byte, length-1)
@@ -373,7 +379,7 @@ func unmarshalSingular(buf []byte) (tag string, wireType BaseType, data any) {
 		data = metadataBuf
 	case StructType:
 	case ListType:
-	case MapType: //参考java，需要peek一下类型，然后再解码
+	case MapType: // 参考java，需要peek一下类型，然后再解码
 	case UnionType:
 		data = mylog.Check2(b.ReadByte())
 	case VariableType:
@@ -386,6 +392,7 @@ func unmarshalSingular(buf []byte) (tag string, wireType BaseType, data any) {
 	}
 	return
 }
+
 func marshalSingular[T singularType, TagType string | StructTag](tag TagType, value T) (b *stream.Buffer) {
 	b = encodeTagAndWireType(tag, NativeTypeBind[TypeOf(value)])
 	switch v := any(value).(type) {
@@ -413,7 +420,7 @@ func marshalSingular[T singularType, TagType string | StructTag](tag TagType, va
 		b.Write(slices.Concat(compressInteger(uint64(len(v))), v))
 	case Union: // todo add enum ?
 		b.WriteByte(v.activeMember)
-	case Variable: //VariableTdfContainer
+	case Variable: // VariableTdfContainer
 		if v.valid {
 			b.WriteByte(1)
 		} else {
@@ -421,7 +428,7 @@ func marshalSingular[T singularType, TagType string | StructTag](tag TagType, va
 		}
 		if v.valid {
 			b.Write(compressInteger(v.id))
-			//todo how to visit value?
+			// todo how to visit value?
 		}
 		b.WriteByte(ID_TERM)
 	case BlazeObjectType:
@@ -436,7 +443,7 @@ func marshalSingular[T singularType, TagType string | StructTag](tag TagType, va
 		//	//}
 		b.Write(slices.Concat(compressInteger(uint64(v.GetType().ComponentID)), compressInteger(uint64(v.GetType().TypeID)), compressInteger(v.GetEntityId())))
 	case time.Time:
-		//b.Write(compressInteger(uint64(v.Second())))
+		// b.Write(compressInteger(uint64(v.Second())))
 		b.Write(compressInteger(uint64(v.UnixMicro())))
 	}
 	return

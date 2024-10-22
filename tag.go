@@ -2,6 +2,7 @@ package tdf
 
 import (
 	"encoding/binary"
+	"reflect"
 	"slices"
 	"strings"
 )
@@ -102,7 +103,7 @@ func DecodeTag_(tag int64, convertToLowercase bool) string {
 }
 
 type TagInfo struct {
-	MemberNativeType NativeType
+	MemberNativeType reflect.Type
 	Tag              int64
 	MemberIndex      int64
 	Member           string
@@ -110,7 +111,7 @@ type TagInfo struct {
 	Default          string
 }
 
-func NewTagInfo(memberNativeType NativeType, tag int64, member string, memberIndex int64, description, def string) *TagInfo {
+func NewTagInfo(memberNativeType reflect.Type, tag int64, member string, memberIndex int64, description, def string) *TagInfo {
 	return &TagInfo{
 		MemberNativeType: memberNativeType,
 		Tag:              tag,
@@ -121,7 +122,7 @@ func NewTagInfo(memberNativeType NativeType, tag int64, member string, memberInd
 	}
 }
 
-func (t *TagInfo) GetMemberNativeType() NativeType {
+func (t *TagInfo) GetMemberNativeType() reflect.Type {
 	return t.MemberNativeType
 }
 

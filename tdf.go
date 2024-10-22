@@ -22,6 +22,13 @@ func Marshal(message any) (buf *stream.Buffer) {
 	return
 }
 
+func Unmarshal(buf []byte) (message *widget.Node[struct2table.StructField]) {
+	b := stream.NewBuffer(string(buf))
+	root := widget.NewRoot(struct2table.StructField{})
+	unmarshalStruct(b, root)
+	return root
+}
+
 func marshalStruct(b *stream.Buffer, parent *widget.Node[struct2table.StructField]) {
 	b.Append(encodeTagAndWireType(parent.Data.Tag, StructType))
 	defer b.WriteByte(ID_TERM)
@@ -67,8 +74,8 @@ func marshalStruct(b *stream.Buffer, parent *widget.Node[struct2table.StructFiel
 	}
 }
 
-func unmarshalStruct() {
-	// todo make tree
+func unmarshalStruct(b *stream.Buffer, parent *widget.Node[struct2table.StructField]) {
+	b.ReadByte() // skip ID_STRUCT
 }
 
 func marshalList(b *stream.Buffer, parent *widget.Node[struct2table.StructField]) {

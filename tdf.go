@@ -24,9 +24,9 @@ func Marshal(message any) (buf *stream.Buffer) {
 
 func Unmarshal(buf []byte) (message *widget.Node[struct2table.StructField]) {
 	b := stream.NewBuffer(buf)
-	root := widget.NewRoot(struct2table.StructField{})
-	unmarshalStruct(b, root)
-	return root
+	message = widget.NewRoot(struct2table.StructField{})
+	unmarshalStruct(b, message)
+	return
 }
 
 func marshalStruct(b *stream.Buffer, parent *widget.Node[struct2table.StructField]) {

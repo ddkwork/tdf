@@ -369,24 +369,26 @@ func NewSingularAssert(data any) *SingularAssert {
 	return &SingularAssert{data: data}
 }
 
-func (s *SingularAssert) String() string                   { return s.data.(string) }
-func (s *SingularAssert) Int() int                         { return s.data.(int) }
-func (s *SingularAssert) Int8() int8                       { return s.data.(int8) }
-func (s *SingularAssert) Int16() int16                     { return s.data.(int16) }
-func (s *SingularAssert) Int32() int32                     { return s.data.(int32) }
-func (s *SingularAssert) Int64() int64                     { return s.data.(int64) }
-func (s *SingularAssert) Uint() uint                       { return s.data.(uint) }
-func (s *SingularAssert) Uint8() uint8                     { return s.data.(uint8) }
-func (s *SingularAssert) Uint16() uint16                   { return s.data.(uint16) }
-func (s *SingularAssert) Uint32() uint32                   { return s.data.(uint32) }
-func (s *SingularAssert) Uint64() uint64                   { return s.data.(uint64) }
-func (s *SingularAssert) Float32() float32                 { return s.data.(float32) }
-func (s *SingularAssert) Float64() float64                 { return s.data.(float64) }
-func (s *SingularAssert) Bytes() []byte                    { return s.data.([]byte) }
-func (s *SingularAssert) Time() time.Time                  { return s.data.(time.Time) }
-func (s *SingularAssert) BlazeObjectId() BlazeObjectId     { return s.data.(BlazeObjectId) }
-func (s *SingularAssert) BlazeObjectType() BlazeObjectType { return s.data.(BlazeObjectType) }
-func (s *SingularAssert) TimeValue() time.Time             { return s.data.(time.Time) }
+func (s *SingularAssert) String() string                    { return s.data.(string) }
+func (s *SingularAssert) Int() int                          { return s.data.(int) }
+func (s *SingularAssert) Int8() int8                        { return s.data.(int8) }
+func (s *SingularAssert) Int16() int16                      { return s.data.(int16) }
+func (s *SingularAssert) Int32() int32                      { return s.data.(int32) }
+func (s *SingularAssert) Int64() int64                      { return s.data.(int64) }
+func (s *SingularAssert) Uint() uint                        { return s.data.(uint) }
+func (s *SingularAssert) Uint8() uint8                      { return s.data.(uint8) }
+func (s *SingularAssert) Uint16() uint16                    { return s.data.(uint16) }
+func (s *SingularAssert) Uint32() uint32                    { return s.data.(uint32) }
+func (s *SingularAssert) Uint64() uint64                    { return s.data.(uint64) }
+func (s *SingularAssert) Float32() float32                  { return s.data.(float32) }
+func (s *SingularAssert) Float64() float64                  { return s.data.(float64) }
+func (s *SingularAssert) Bytes() []byte                     { return s.data.([]byte) }
+func (s *SingularAssert) Time() time.Time                   { return s.data.(time.Time) }
+func (s *SingularAssert) BlazeObjectId() *BlazeObjectId     { return s.data.(*BlazeObjectId) }
+func (s *SingularAssert) BlazeObjectType() *BlazeObjectType { return s.data.(*BlazeObjectType) }
+func (s *SingularAssert) Union() *Union                     { return s.data.(*Union) }
+func (s *SingularAssert) Variable() *Variable               { return s.data.(*Variable) }
+func (s *SingularAssert) Enum() *Enum                       { return s.data.(*Enum) }
 
 // 更安全的做法是这里先解码tag和类型并传入类型，然后改成泛型函数，类型就安全了
 // 在构造树节点的时候传入类型返回对应类型的值，然后填充节点元数据?

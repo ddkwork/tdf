@@ -81,16 +81,16 @@ func marshalList(b *stream.Buffer, parent *widget.Node[struct2table.StructField]
 		elemValueOf := ValueOf(elemValue)
 		switch elemType.Kind() {
 		case Int, Int8, Int16, Int32, Int64:
-			b.Append(marshalSingular(string(parent.Data.Tag), elemValueOf.Int()))
+			b.Append(marshalSingular(parent.Data.Tag, elemValueOf.Int()))
 		case Uint, Uint8, Uint16, Uint32, Uint64:
-			b.Append(marshalSingular(string(parent.Data.Tag), elemValueOf.Uint()))
+			b.Append(marshalSingular(parent.Data.Tag, elemValueOf.Uint()))
 		case Float32, Float64:
-			b.Append(marshalSingular(string(parent.Data.Tag), elemValueOf.Float()))
+			b.Append(marshalSingular(parent.Data.Tag, elemValueOf.Float()))
 		case String:
-			b.Append(marshalSingular(string(parent.Data.Tag), elemValueOf.String()))
+			b.Append(marshalSingular(parent.Data.Tag, elemValueOf.String()))
 		case Slice, Array:
 			if elemType.Elem().Kind() == Int8 { //todo remove listType ?
-				b.Append(marshalSingular(string(parent.Data.Tag), elemValueOf.Bytes()))
+				b.Append(marshalSingular(parent.Data.Tag, elemValueOf.Bytes()))
 				continue
 			}
 			marshalList(b, parent.Children[i])
@@ -101,17 +101,17 @@ func marshalList(b *stream.Buffer, parent *widget.Node[struct2table.StructField]
 		default:
 			switch parent.Data.ValueAssert.(type) {
 			case []byte:
-				marshalSingular(string(parent.Data.Tag), elemValueOf.Bytes())
+				marshalSingular(parent.Data.Tag, elemValueOf.Bytes())
 			case *Union:
-				b.Append(marshalSingular(string(parent.Data.Tag), elemValue.(*Union)))
+				b.Append(marshalSingular(parent.Data.Tag, elemValue.(*Union)))
 			case *Variable:
-				b.Append(marshalSingular(string(parent.Data.Tag), elemValue.(*Variable)))
+				b.Append(marshalSingular(parent.Data.Tag, elemValue.(*Variable)))
 			case *BlazeObjectType:
-				b.Append(marshalSingular(string(parent.Data.Tag), elemValue.(*BlazeObjectType)))
+				b.Append(marshalSingular(parent.Data.Tag, elemValue.(*BlazeObjectType)))
 			case *BlazeObjectId:
-				b.Append(marshalSingular(string(parent.Data.Tag), elemValue.(*BlazeObjectId)))
+				b.Append(marshalSingular(parent.Data.Tag, elemValue.(*BlazeObjectId)))
 			case time.Time:
-				b.Append(marshalSingular(string(parent.Data.Tag), elemValue.(time.Time).UnixNano()))
+				b.Append(marshalSingular(parent.Data.Tag, elemValue.(time.Time).UnixNano()))
 			}
 			mylog.Check("unsupported type")
 		}

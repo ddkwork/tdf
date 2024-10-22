@@ -28,18 +28,18 @@ func marshalStruct(b *stream.Buffer, parent *widget.Node[struct2table.StructFiel
 	for _, child := range parent.Children {
 		switch child.Data.Value.Kind() {
 		case Bool:
-			b.Append(marshalSingular(string(child.Data.Tag), child.Data.Value.Bool()))
+			b.Append(marshalSingular(child.Data.Tag, child.Data.Value.Bool()))
 		case Int, Int8, Int16, Int32, Int64:
-			b.Append(marshalSingular(string(child.Data.Tag), child.Data.Value.Int()))
+			b.Append(marshalSingular(child.Data.Tag, child.Data.Value.Int()))
 		case Uint, Uint8, Uint16, Uint32, Uint64:
-			b.Append(marshalSingular(string(child.Data.Tag), child.Data.Value.Uint()))
+			b.Append(marshalSingular(child.Data.Tag, child.Data.Value.Uint()))
 		case Float32, Float64:
-			b.Append(marshalSingular(string(child.Data.Tag), child.Data.Value.Float()))
+			b.Append(marshalSingular(child.Data.Tag, child.Data.Value.Float()))
 		case String:
-			b.Append(marshalSingular(string(child.Data.Tag), child.Data.Value.String()))
+			b.Append(marshalSingular(child.Data.Tag, child.Data.Value.String()))
 		case Slice, Array:
 			if child.Data.Value.Elem().Kind() == Int8 { //todo remove listType ?
-				b.Append(marshalSingular(string(child.Data.Tag), child.Data.Value.Bytes()))
+				b.Append(marshalSingular(child.Data.Tag, child.Data.Value.Bytes()))
 				continue
 			}
 			marshalList(b, child)
@@ -50,17 +50,17 @@ func marshalStruct(b *stream.Buffer, parent *widget.Node[struct2table.StructFiel
 		default:
 			switch child.Data.ValueAssert.(type) {
 			case []byte:
-				marshalSingular(string(child.Data.Tag), child.Data.Value.Bytes())
+				marshalSingular(child.Data.Tag, child.Data.Value.Bytes())
 			case *Union:
-				marshalSingular(string(child.Data.Tag), child.Data.ValueAssert.(*Union))
+				marshalSingular(child.Data.Tag, child.Data.ValueAssert.(*Union))
 			case *Variable:
-				marshalSingular(string(child.Data.Tag), child.Data.ValueAssert.(*Variable))
+				marshalSingular(child.Data.Tag, child.Data.ValueAssert.(*Variable))
 			case *BlazeObjectType:
-				marshalSingular(string(child.Data.Tag), child.Data.ValueAssert.(*BlazeObjectType))
+				marshalSingular(child.Data.Tag, child.Data.ValueAssert.(*BlazeObjectType))
 			case *BlazeObjectId:
-				marshalSingular(string(child.Data.Tag), child.Data.ValueAssert.(*BlazeObjectId))
+				marshalSingular(child.Data.Tag, child.Data.ValueAssert.(*BlazeObjectId))
 			case time.Time:
-				b.Append(marshalSingular(string(child.Data.Tag), child.Data.ValueAssert.(time.Time).UnixNano()))
+				b.Append(marshalSingular(child.Data.Tag, child.Data.ValueAssert.(time.Time).UnixNano()))
 			}
 			mylog.Check("unsupported type")
 		}
@@ -386,7 +386,7 @@ func unmarshalSingular(buf []byte) (tag string, wireType BaseType, data any) {
 	}
 	return
 }
-func marshalSingular[T singularType](tag string, value T) (b *stream.Buffer) {
+func marshalSingular[T singularType, TagType string | StructTag](tag TagType, value T) (b *stream.Buffer) {
 	b = encodeTagAndWireType(tag, NativeTypeBind[TypeOf(value)])
 	switch v := any(value).(type) {
 	case bool:

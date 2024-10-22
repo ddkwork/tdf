@@ -369,6 +369,7 @@ func NewSingularAssert(data any) *SingularAssert {
 	return &SingularAssert{data: data}
 }
 
+func (s *SingularAssert) Bool() bool                        { return s.data.(bool) }
 func (s *SingularAssert) String() string                    { return s.data.(string) }
 func (s *SingularAssert) Int() int                          { return s.data.(int) }
 func (s *SingularAssert) Int8() int8                        { return s.data.(int8) }

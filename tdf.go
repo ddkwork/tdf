@@ -75,16 +75,8 @@ func marshalStruct(b *stream.Buffer, parent *widget.Node[struct2table.StructFiel
 }
 
 func unmarshalStruct(b *stream.Buffer, parent *widget.Node[struct2table.StructField]) {
-	wireType := BaseType(mylog.Check2(b.ReadByte()))
-	if wireType != StructType {
-		mylog.Check("invalid struct type") // todo skipElement
-	}
 	for {
-		tag := decompressInteger(b)
-		if tag == ID_TERM {
-			break
-		}
-		wireType := BaseType(mylog.Check2(b.ReadByte()))
+		tag, wireType := decodeTagAndWireType(b)
 		switch wireType {
 		// case BoolType:
 		//	parent.Data.Value.SetBool(unmarshalSingular(b, tag).Bool())
@@ -107,8 +99,15 @@ func unmarshalStruct(b *stream.Buffer, parent *widget.Node[struct2table.StructFi
 			parent.AddChild(container)
 			unmarshalStruct(b, container)
 		default:
-			mylog.Check("unsupported type")
-
+			parent.AddChildByData(struct2table.StructField{
+				Number:      0,
+				Name:        "",
+				Type:        nil,
+				Kind:        0,
+				Tag:         StructTag(tag),
+				Value:       Value{},
+				ValueAssert: nil,
+			})
 		}
 	}
 }

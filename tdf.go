@@ -48,18 +48,18 @@ func marshalStruct(b *stream.Buffer, parent *widget.Node[struct2table.StructFiel
 		case Struct:
 			marshalStruct(b, child)
 		default:
-			switch child.Data.Type {
-			case BytesNativeType:
+			switch child.Data.ValueAssert.(type) {
+			case []byte:
 				marshalSingular(string(child.Data.Tag), child.Data.Value.Bytes())
-			case UnionNativeType:
+			case *Union:
 				marshalSingular(string(child.Data.Tag), child.Data.ValueAssert.(*Union))
-			case VariableNativeType:
+			case *Variable:
 				marshalSingular(string(child.Data.Tag), child.Data.ValueAssert.(*Variable))
-			case BlazeObjectTypeNativeType:
+			case *BlazeObjectType:
 				marshalSingular(string(child.Data.Tag), child.Data.ValueAssert.(*BlazeObjectType))
-			case BlazeObjectIdNativeType:
+			case *BlazeObjectId:
 				marshalSingular(string(child.Data.Tag), child.Data.ValueAssert.(*BlazeObjectId))
-			case TimeValueNativeType:
+			case time.Time:
 				b.Append(marshalSingular(string(child.Data.Tag), child.Data.ValueAssert.(time.Time).UnixNano()))
 			}
 			mylog.Check("unsupported type")
@@ -76,20 +76,21 @@ func marshalList(b *stream.Buffer, parent *widget.Node[struct2table.StructField]
 	}
 	for i := range parent.Data.Value.Len() {
 		elemType := parent.Data.Value.Index(i).Type()
-		elemSize := elemType.Size()
+		//	elemSize := elemType.Size()
 		elemValue := parent.Data.Value.Index(i).Interface()
+		elemValueOf := ValueOf(elemValue)
 		switch elemType.Kind() {
 		case Int, Int8, Int16, Int32, Int64:
-			b.Append(marshalSingular(string(parent.Data.Tag), elemValue))
+			b.Append(marshalSingular(string(parent.Data.Tag), elemValueOf.Int()))
 		case Uint, Uint8, Uint16, Uint32, Uint64:
-			b.Append(marshalSingular(string(parent.Data.Tag), elemValue))
+			b.Append(marshalSingular(string(parent.Data.Tag), elemValueOf.Uint()))
 		case Float32, Float64:
-			b.Append(marshalSingular(string(parent.Data.Tag), elemValue))
+			b.Append(marshalSingular(string(parent.Data.Tag), elemValueOf.Float()))
 		case String:
-			b.Append(marshalSingular(string(parent.Data.Tag), elemValue))
+			b.Append(marshalSingular(string(parent.Data.Tag), elemValueOf.String()))
 		case Slice, Array:
 			if elemType.Elem().Kind() == Int8 { //todo remove listType ?
-				b.Append(marshalSingular(string(parent.Data.Tag), elemValue))
+				b.Append(marshalSingular(string(parent.Data.Tag), elemValueOf.Bytes()))
 				continue
 			}
 			marshalList(b, parent.Children[i])
@@ -98,19 +99,19 @@ func marshalList(b *stream.Buffer, parent *widget.Node[struct2table.StructField]
 		case Struct:
 			marshalStruct(b, parent.Children[i])
 		default:
-			switch parent.Data.Type {
-			case BytesNativeType:
-				marshalSingular(string(parent.Data.Tag), elemValue)
-			case UnionNativeType:
-				mylog.Check("union type not supported")
-			case VariableNativeType:
-				mylog.Check("variable type not supported")
-			case BlazeObjectTypeNativeType:
-				mylog.Check("blazeObjectId type not supported")
-			case BlazeObjectIdNativeType:
-				mylog.Check("blazeObjectId type not supported")
-			case TimeValueNativeType:
-				b.Append(marshalSingular(string(parent.Data.Tag), elemValue))
+			switch parent.Data.ValueAssert.(type) {
+			case []byte:
+				marshalSingular(string(parent.Data.Tag), elemValueOf.Bytes())
+			case *Union:
+				b.Append(marshalSingular(string(parent.Data.Tag), elemValue.(*Union)))
+			case *Variable:
+				b.Append(marshalSingular(string(parent.Data.Tag), elemValue.(*Variable)))
+			case *BlazeObjectType:
+				b.Append(marshalSingular(string(parent.Data.Tag), elemValue.(*BlazeObjectType)))
+			case *BlazeObjectId:
+				b.Append(marshalSingular(string(parent.Data.Tag), elemValue.(*BlazeObjectId)))
+			case time.Time:
+				b.Append(marshalSingular(string(parent.Data.Tag), elemValue.(time.Time).UnixNano()))
 			}
 			mylog.Check("unsupported type")
 		}
@@ -139,11 +140,11 @@ func marshalMap(b *stream.Buffer, parent *widget.Node[struct2table.StructField])
 	if value.Len() == 0 {
 		return
 	}
-	keys := value.MapKeys()
-	for i, key := range keys {
-		mapElemValue := value.MapIndex(key)
-
-	}
+	//keys := value.MapKeys()
+	//for i, key := range keys {
+	//	mapElemValue := value.MapIndex(key)
+	//
+	//}
 	//todo
 	//if e.encodeType(mapHelper.GetKeyType()) &&
 	//	e.encodeType(mapHelper.GetValueType()) &&
@@ -456,36 +457,25 @@ type (
 )
 
 var NativeTypeBind = map[Type]BaseType{
-	TypeFor[bool]():            IntegerType,
-	TypeFor[int8]():            IntegerType,
-	TypeFor[int16]():           IntegerType,
-	TypeFor[int32]():           IntegerType,
-	TypeFor[int64]():           IntegerType,
-	TypeFor[uint8]():           IntegerType,
-	TypeFor[uint16]():          IntegerType,
-	TypeFor[uint32]():          IntegerType,
-	TypeFor[uint64]():          IntegerType,
-	TypeFor[string]():          StringType,
-	TypeFor[[]byte]():          BinaryType,   // blob
-	TypeFor[struct{}]():        StructType,   // java显示tdf就是结构体类型,ID_TERM 0结尾
-	TypeFor[[]any]():           ListType,     // java显示方法名称为Vector,类型，大小，遍历
-	TypeFor[map[any]any]():     MapType,      // k v type,size,遍历
-	TypeFor[Union]():           UnionType,    // todo mock enum
-	TypeFor[Variable]():        VariableType, // VariableTdfContainer ID_TERM 0结尾
-	TypeFor[float32]():         FloatType,    // floatToIntBits
-	TypeFor[float64]():         FloatType,
-	TypeFor[BlazeObjectType](): BlazeObjectTypeType, // getComponentId and getTypeId  整型编解码,难道是树形的层级下标和孩子节点下标?
-	TypeFor[BlazeObjectId]():   BlazeObjectIdType,   // getComponentId , getTypeId and getEntityId 整型编解码
-	TypeFor[time.Time]():       TimeValueType,
+	TypeFor[bool]():             IntegerType,
+	TypeFor[int8]():             IntegerType,
+	TypeFor[int16]():            IntegerType,
+	TypeFor[int32]():            IntegerType,
+	TypeFor[int64]():            IntegerType,
+	TypeFor[uint8]():            IntegerType,
+	TypeFor[uint16]():           IntegerType,
+	TypeFor[uint32]():           IntegerType,
+	TypeFor[uint64]():           IntegerType,
+	TypeFor[string]():           StringType,
+	TypeFor[[]byte]():           BinaryType,   // blob
+	TypeFor[struct{}]():         StructType,   // java显示tdf就是结构体类型,ID_TERM 0结尾
+	TypeFor[[]any]():            ListType,     // java显示方法名称为Vector,类型，大小，遍历
+	TypeFor[map[any]any]():      MapType,      // k v type,size,遍历
+	TypeFor[*Union]():           UnionType,    // todo mock enum
+	TypeFor[*Variable]():        VariableType, // VariableTdfContainer ID_TERM 0结尾
+	TypeFor[float32]():          FloatType,    // floatToIntBits
+	TypeFor[float64]():          FloatType,
+	TypeFor[*BlazeObjectType](): BlazeObjectTypeType, // getComponentId and getTypeId  整型编解码,难道是树形的层级下标和孩子节点下标?
+	TypeFor[*BlazeObjectId]():   BlazeObjectIdType,   // getComponentId , getTypeId and getEntityId 整型编解码
+	TypeFor[time.Time]():        TimeValueType,
 }
-
-type NativeType Type
-
-var (
-	BytesNativeType           = TypeFor[[]byte]()
-	UnionNativeType           = TypeFor[Union]()
-	VariableNativeType        = TypeFor[Variable]()
-	BlazeObjectTypeNativeType = TypeFor[BlazeObjectType]()
-	BlazeObjectIdNativeType   = TypeFor[BlazeObjectId]()
-	TimeValueNativeType       = TypeFor[time.Time]()
-)

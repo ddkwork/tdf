@@ -2,7 +2,6 @@ package tdf
 
 import (
 	"encoding/hex"
-	"reflect"
 	"slices"
 	"strconv"
 	"strings"
@@ -1352,9 +1351,9 @@ func Test_marshalList(t *testing.T) {
 	assert.Equal(t, 44, len(mockObjects))
 
 	fields := stream.ReflectVisibleFields(mockObjects[0]) //切片tag是一样的，这非常利于编解码
-	tags := make([]reflect.StructTag, 0)
+	tags := make([]string, 0)
 	for _, field := range fields {
-		tags = append(tags, field.Tag)
+		tags = append(tags, field.Tag.Get("json"))
 	}
 	for _, elem := range mockObjects {
 		b.Append(marshalSingular(tags[0], elem.Field1))

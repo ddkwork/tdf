@@ -398,7 +398,7 @@ func (s *SingularAssert) Enum() *Enum                       { return s.data.(*En
 // 解码返回的只是一个树形，无法预先知道每个节点的元数据类型，因为我们不使用协议辅助文件系统
 
 // 解码二进制预先是不知道类型的，所以这里不限制类型才合理？部分返回值需要断言看来是无法避免的了,或者需要一个统一的断言函数来确保解码安全
-func unmarshalSingular(buf []byte) (tag string, wireType BaseType, data any) {
+func unmarshalSingular[T stream.Type](buf T) (tag string, wireType BaseType, data any) {
 	b := stream.NewBuffer(buf)
 	tag, wireType = decodeTagAndWireType(b)
 	switch wireType {

@@ -574,9 +574,14 @@ func TestName(t *testing.T) {
 	length := decompressInteger(exp)
 	assert.Equal(t, uint32(44), length) //2c 结构体大小
 
-	tag, baseType = decodeTagAndWireType(exp)
+	//tag, baseType = decodeTagAndWireType(exp)
+	//assert.Equal(t, "DESC", tag)
+	//assert.Equal(t, StringType, baseType)
+
+	tag, wireType, data := unmarshalSingular(exp)
 	assert.Equal(t, "DESC", tag)
-	assert.Equal(t, StringType, baseType)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
 }
 
 // f3 index

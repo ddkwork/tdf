@@ -2,6 +2,7 @@ package tdf
 
 import (
 	"encoding/hex"
+	"reflect"
 	"slices"
 	"strconv"
 	"strings"
@@ -1091,230 +1092,230 @@ func Test_marshalList(t *testing.T) {
 	elemSize := 44
 	b.Write(slices.Concat(compressInteger(elemType), compressInteger(elemSize)))
 	type structMock struct {
-		field1 string `json:"DESC"`
-		field2 string `json:"LNAM"`
-		field3 string `json:"SNAM"`
+		Field1 string `json:"DESC"`
+		Field2 string `json:"LNAM"`
+		Field3 string `json:"SNAM"`
 	}
 	mockObjects := []structMock{
 		{
-			field1: "",
-			field2: "Expert Scouting",
-			field3: "Trait Expert Scout",
+			Field1: "",
+			Field2: "Expert Scouting",
+			Field3: "Trait Expert Scout",
 		},
 		{
-			field1: "",
-			field2: "Increased Player Weekly Goal XP",
-			field3: "Trait Increased Experience",
+			Field1: "",
+			Field2: "Increased Player Weekly Goal XP",
+			Field3: "Trait Increased Experience",
 		},
 		{
-			field1: "",
-			field2: "Become Predictable",
-			field3: "Trait Predictability",
+			Field1: "",
+			Field2: "Become Predictable",
+			Field3: "Trait Predictability",
 		},
 		{
-			field1: "",
-			field2: "Master Trade Negotiator",
-			field3: "Trait Trade Influence",
+			Field1: "",
+			Field2: "Master Trade Negotiator",
+			Field3: "Trait Trade Influence",
 		},
 		{
-			field1: "",
-			field2: "QB Free Agency Influence",
-			field3: "Trait QB Free Agent Influence",
+			Field1: "",
+			Field2: "QB Free Agency Influence",
+			Field3: "Trait QB Free Agent Influence",
 		},
 		{
-			field1: "",
-			field2: "RB Free Agency Influence",
-			field3: "Trait RB Free Agent Influence",
+			Field1: "",
+			Field2: "RB Free Agency Influence",
+			Field3: "Trait RB Free Agent Influence",
 		},
 		{
-			field1: "",
-			field2: "WR Free Agency Influence",
-			field3: "Trait WR Free Agent Influence",
+			Field1: "",
+			Field2: "WR Free Agency Influence",
+			Field3: "Trait WR Free Agent Influence",
 		},
 		{
-			field1: "",
-			field2: "TE Free Agency Influence",
-			field3: "Trait TE Free Agent Influence",
+			Field1: "",
+			Field2: "TE Free Agency Influence",
+			Field3: "Trait TE Free Agent Influence",
 		},
 		{
-			field1: "",
-			field2: "OL Free Agency Influence",
-			field3: "Trait OL Free Agent Influence",
+			Field1: "",
+			Field2: "OL Free Agency Influence",
+			Field3: "Trait OL Free Agent Influence",
 		},
 		{
-			field1: "",
-			field2: "DL Free Agency Influence",
-			field3: "Trait DL Free Agent Influence",
+			Field1: "",
+			Field2: "DL Free Agency Influence",
+			Field3: "Trait DL Free Agent Influence",
 		},
 		{
-			field1: "",
-			field2: "LB Free Agency Influence",
-			field3: "Trait LB Free Agent Influence",
+			Field1: "",
+			Field2: "LB Free Agency Influence",
+			Field3: "Trait LB Free Agent Influence",
 		},
 		{
-			field1: "",
-			field2: "DB Free Agency Influence",
-			field3: "Trait DB Free Agent Influence",
+			Field1: "",
+			Field2: "DB Free Agency Influence",
+			Field3: "Trait DB Free Agent Influence",
 		},
 		{
-			field1: "",
-			field2: "K Free Agency Influence",
-			field3: "Trait K Free Agent Influence",
+			Field1: "",
+			Field2: "K Free Agency Influence",
+			Field3: "Trait K Free Agent Influence",
 		},
 		{
-			field1: "",
-			field2: "P Free Agency Influence",
-			field3: "Trait P Free Agent Influence",
+			Field1: "",
+			Field2: "P Free Agency Influence",
+			Field3: "Trait P Free Agent Influence",
 		},
 		{
-			field1: "",
-			field2: "QB Training Boost",
-			field3: "Trait QB Player Progression",
+			Field1: "",
+			Field2: "QB Training Boost",
+			Field3: "Trait QB Player Progression",
 		},
 		{
-			field1: "",
-			field2: "RB Training Boost",
-			field3: "Trait RB Player Progression",
+			Field1: "",
+			Field2: "RB Training Boost",
+			Field3: "Trait RB Player Progression",
 		},
 		{
-			field1: "",
-			field2: "WR Training Boost",
-			field3: "Trait WR Player Progression",
+			Field1: "",
+			Field2: "WR Training Boost",
+			Field3: "Trait WR Player Progression",
 		},
 		{
-			field1: "",
-			field2: "TE Training Boost",
-			field3: "Trait TE Player Progression",
+			Field1: "",
+			Field2: "TE Training Boost",
+			Field3: "Trait TE Player Progression",
 		},
 		{
-			field1: "",
-			field2: "OL Training Boost",
-			field3: "Trait OL Player Progression",
+			Field1: "",
+			Field2: "OL Training Boost",
+			Field3: "Trait OL Player Progression",
 		},
 		{
-			field1: "",
-			field2: "DL Training Boost",
-			field3: "Trait DL Player Progression",
+			Field1: "",
+			Field2: "DL Training Boost",
+			Field3: "Trait DL Player Progression",
 		},
 		{
-			field1: "",
-			field2: "LB Training Boost",
-			field3: "Trait LB Player Progression",
+			Field1: "",
+			Field2: "LB Training Boost",
+			Field3: "Trait LB Player Progression",
 		},
 		{
-			field1: "",
-			field2: "DB Training Boost",
-			field3: "Trait DB Player Progression",
+			Field1: "",
+			Field2: "DB Training Boost",
+			Field3: "Trait DB Player Progression",
 		},
 		{
-			field1: "",
-			field2: "K Training Boost",
-			field3: "Trait K Player Progression",
+			Field1: "",
+			Field2: "K Training Boost",
+			Field3: "Trait K Player Progression",
 		},
 		{
-			field1: "",
-			field2: "P Training Boost",
-			field3: "Trait P Player Progression",
+			Field1: "",
+			Field2: "P Training Boost",
+			Field3: "Trait P Player Progression",
 		},
 		{
-			field1: "",
-			field2: "QB Re-Sign Influence",
-			field3: "Trait QB Contract Influence",
+			Field1: "",
+			Field2: "QB Re-Sign Influence",
+			Field3: "Trait QB Contract Influence",
 		},
 		{
-			field1: "",
-			field2: "RB Re-Sign Influence",
-			field3: "Trait RB Contract Influence",
+			Field1: "",
+			Field2: "RB Re-Sign Influence",
+			Field3: "Trait RB Contract Influence",
 		},
 		{
-			field1: "",
-			field2: "WR Re-Sign Influence",
-			field3: "Trait WR Contract Influence",
+			Field1: "",
+			Field2: "WR Re-Sign Influence",
+			Field3: "Trait WR Contract Influence",
 		},
 		{
-			field1: "",
-			field2: "TE Re-Sign Influence",
-			field3: "Trait TE Contract Influence",
+			Field1: "",
+			Field2: "TE Re-Sign Influence",
+			Field3: "Trait TE Contract Influence",
 		},
 		{
-			field1: "",
-			field2: "OL Re-Sign Influence",
-			field3: "Trait OL Contract Influence",
+			Field1: "",
+			Field2: "OL Re-Sign Influence",
+			Field3: "Trait OL Contract Influence",
 		},
 		{
-			field1: "",
-			field2: "DL Re-Sign Influence",
-			field3: "Trait DL Contract Influence",
+			Field1: "",
+			Field2: "DL Re-Sign Influence",
+			Field3: "Trait DL Contract Influence",
 		},
 		{
-			field1: "",
-			field2: "LB Re-Sign Influence",
-			field3: "Trait LB Contract Influence",
+			Field1: "",
+			Field2: "LB Re-Sign Influence",
+			Field3: "Trait LB Contract Influence",
 		},
 		{
-			field1: "",
-			field2: "DB Re-Sign Influence",
-			field3: "Trait DB Contract Influence",
+			Field1: "",
+			Field2: "DB Re-Sign Influence",
+			Field3: "Trait DB Contract Influence",
 		},
 		{
-			field1: "",
-			field2: "K Re-Sign Influence",
-			field3: "Trait K Contract Influence",
+			Field1: "",
+			Field2: "K Re-Sign Influence",
+			Field3: "Trait K Contract Influence",
 		},
 		{
-			field1: "",
-			field2: "P Re-Sign Influence",
-			field3: "Trait P Contract Influence",
+			Field1: "",
+			Field2: "P Re-Sign Influence",
+			Field3: "Trait P Contract Influence",
 		},
 		{
-			field1: "",
-			field2: "QB Retirement Influence",
-			field3: "Trait QB Retirement Influence",
+			Field1: "",
+			Field2: "QB Retirement Influence",
+			Field3: "Trait QB Retirement Influence",
 		},
 		{
-			field1: "",
-			field2: "RB Retirement Influence",
-			field3: "Trait RB Retirement Influence",
+			Field1: "",
+			Field2: "RB Retirement Influence",
+			Field3: "Trait RB Retirement Influence",
 		},
 		{
-			field1: "",
-			field2: "WR Retirement Influence",
-			field3: "Trait WR Retirement Influence",
+			Field1: "",
+			Field2: "WR Retirement Influence",
+			Field3: "Trait WR Retirement Influence",
 		},
 		{
-			field1: "",
-			field2: "TE Retirement Influence",
-			field3: "Trait TE Retirement Influence",
+			Field1: "",
+			Field2: "TE Retirement Influence",
+			Field3: "Trait TE Retirement Influence",
 		},
 		{
-			field1: "",
-			field2: "OL Retirement Influence",
-			field3: "Trait OL Retirement Influence",
+			Field1: "",
+			Field2: "OL Retirement Influence",
+			Field3: "Trait OL Retirement Influence",
 		},
 		{
-			field1: "",
-			field2: "DL Retirement Influence",
-			field3: "Trait DL Retirement Influence",
+			Field1: "",
+			Field2: "DL Retirement Influence",
+			Field3: "Trait DL Retirement Influence",
 		},
 		{
-			field1: "",
-			field2: "LB Retirement Influence",
-			field3: "Trait LB Retirement Influence",
+			Field1: "",
+			Field2: "LB Retirement Influence",
+			Field3: "Trait LB Retirement Influence",
 		},
 		{
-			field1: "",
-			field2: "DB Retirement Influence",
-			field3: "Trait DB Retirement Influence",
+			Field1: "",
+			Field2: "DB Retirement Influence",
+			Field3: "Trait DB Retirement Influence",
 		},
 		{
-			field1: "",
-			field2: "K Retirement Influence",
-			field3: "Trait K Retirement Influence",
+			Field1: "",
+			Field2: "K Retirement Influence",
+			Field3: "Trait K Retirement Influence",
 		},
 		{
-			field1: "",
-			field2: "P Retirement Influence",
-			field3: "Trait P Retirement Influence",
+			Field1: "",
+			Field2: "P Retirement Influence",
+			Field3: "Trait P Retirement Influence",
 		},
 	}
 
@@ -1340,7 +1341,7 @@ func Test_marshalList(t *testing.T) {
 			if s == "nullptr" {
 				s = strconv.Quote("")
 			}
-			g.P("field", i+1, ":", s, ",")
+			g.P("Field", i+1, ":", s, ",")
 		}
 		g.P("}", ",")
 		return true
@@ -1349,6 +1350,19 @@ func Test_marshalList(t *testing.T) {
 
 	assert.Equal(t, 44*3, len(elems))
 	assert.Equal(t, 44, len(mockObjects))
+
+	fields := stream.ReflectVisibleFields(mockObjects[0]) //切片tag是一样的，这非常利于编解码
+	tags := make([]reflect.StructTag, 0)
+	for _, field := range fields {
+		tags = append(tags, field.Tag)
+	}
+	for _, elem := range mockObjects {
+		b.Append(marshalSingular(tags[0], elem.Field1))
+		b.Append(marshalSingular(tags[1], elem.Field2))
+		b.Append(marshalSingular(tags[2], elem.Field3))
+	}
+	b.WriteByte(ID_TERM) //endGroup
+
 	//这里需要一个结构体包裹它，是第二个字段
 
 	type mockMapValueObject struct { //如果字段是空的就不编码？
@@ -1364,12 +1378,6 @@ func Test_marshalList(t *testing.T) {
 		filed3: "UserEntity",
 		filed4: 0,
 	})
-
-	//for i := range elemSize {
-	//in list ,skip tag and type marshal
-	//mock marshal struct
-
-	//	}
 
 }
 

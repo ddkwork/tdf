@@ -382,7 +382,7 @@ type Packet struct {
 	Note        string
 	Size        int
 	decoded     string
-	hexdump     string
+	hexdump     stream.HexDumpString
 }
 
 func TestName(t *testing.T) {
@@ -562,7 +562,7 @@ func TestName(t *testing.T) {
 	//	{Tag: "LNAM", Value: "FS Free Agency Influence"},
 	//}
 
-	exp := stream.NewHexDump(stream.HexDumpString(tdf_test_data.hexdump))
+	exp := stream.NewHexDump(tdf_test_data.hexdump)
 	exp.ReadN(16)
 	tag, baseType := decodeTagAndWireType(exp)
 	assert.Equal(t, "CTET", tag)

@@ -22,7 +22,7 @@ func TestGenBaseType(t *testing.T) {
 	m.Set("Binary", "[]byte，Java是blob，klv，不需要0收尾")
 	m.Set("Struct", "TDFStruct，编解码类型，大小，字段，0收尾")
 	m.Set("List", "[]any，类型和大小编码一次，不需要0收尾，与公开实现的命名vector2-3不一样，Java实现反倒把这个函数命名为vector，本质上是编解码切片而已。元素的tag是一样的，不管元素是什么类型，但元素需要编码tag和type，以及value，嵌套也一样")
-	m.Set("Map", "map[any]any，key和value的type，kv总个数编码一次，不需要0收尾，kv是tlv编解码")
+	m.Set("Map", "map[any]any，key和value的type，kv总个数编码一次，不需要0收尾，kv是tlv编解码。list元素和map的kv对的tag是相同的，只需要取出第一组供后面的编解码tag即可")
 	m.Set("Union", "Union需要研究结构体，todo添加Enum枚举")
 	m.Set("Variable", "Variable container，似乎有取值条件，需要单元测试")
 	m.Set("BlazeObjectType，传说中的vector2", "BlazeObjectType")

@@ -574,14 +574,510 @@ func TestName(t *testing.T) {
 	length := decompressInteger(exp)
 	assert.Equal(t, uint32(44), length) //2c 结构体大小
 
+	//所以这里相当于rootRows的每一行，深度1下的所有字段，前面大部分是结构体字段，后面有3个整数和1个map
+	//解码应该改成结构体切片
+	//切片 tlv
+	//结构体 tlv，因为根据java，因为父级是切片，结构体类型只需要编码一次
+	//三个字符串类型字段的结构体，klv，多个元素，注意结构体类型因为父级不编码了，但是id-term需要编码
+	//深度为1对应的id-term,至此切片编解码结束
+
+	//然后来到这里{FORM:<9A FC AD >:TdfStruct:size=:TdfStruct:size=5:
+	//{DICT:<92 98 F4 >:TdfMap:0-3 size=16:  结构体进了map ？
+	//... struct
+
 	//tag, baseType = decodeTagAndWireType(exp)
 	//assert.Equal(t, "DESC", tag)
 	//assert.Equal(t, StringType, baseType)
+	//这里收尾
+	//	{RIBC:<CA 98 A3 >:TdfInteger:0x11/17}
+	//	{ROOT:<CA FB F4 >:TdfInteger:0x5280016/86507542}
+	//	{SIBC:<CE 98 A3 >:TdfInteger:0xE/14}
+	//	{TABL:<D2 18 AC >:TdfMap:0-3 size=15:
+	//		{460:
+	//			{:<>:TdfStruct:size=:TdfStruct:size=2:
 
 	tag, wireType, data := unmarshalSingular(exp)
 	assert.Equal(t, "DESC", tag)
 	assert.Equal(t, StringType, wireType)
 	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Expert Scouting", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait Expert Scout", data)
+
+	exp.ReadByte() //struct end ID_TERM
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Increased Player Weekly Goal XP", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait Increased Experience", data)
+
+	exp.ReadByte()
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Become Predictable", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait Predictability", data)
+
+	exp.ReadByte()
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Master Trade Negotiator", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait Trade Influence", data)
+
+	exp.ReadByte()
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "QB Free Agency Influence", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait QB Free Agent Influence", data)
+
+	exp.ReadByte()
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "RB Free Agency Influence", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait RB Free Agent Influence", data)
+
+	exp.ReadByte()
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "WR Free Agency Influence", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait WR Free Agent Influence", data)
+
+	exp.ReadByte()
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "TE Free Agency Influence", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait TE Free Agent Influence", data)
+
+	exp.ReadByte()
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "OL Free Agency Influence", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait OL Free Agent Influence", data)
+
+	exp.ReadByte()
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "DL Free Agency Influence", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait DL Free Agent Influence", data)
+
+	exp.ReadByte()
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "LB Free Agency Influence", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait LB Free Agent Influence", data)
+
+	exp.ReadByte()
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "DB Free Agency Influence", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait DB Free Agent Influence", data)
+
+	exp.ReadByte()
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "K Free Agency Influence", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait K Free Agent Influence", data)
+
+	exp.ReadByte()
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "P Free Agency Influence", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait P Free Agent Influence", data)
+
+	exp.ReadByte()
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "S Free Agency Influence", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait S Free Agent Influence", data)
+
+	exp.ReadByte()
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "CB Free Agency Influence", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait CB Free Agent Influence", data)
+
+	exp.ReadByte()
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "S Free Agency Influence", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait S Free Agent Influence", data)
+
+	exp.ReadByte()
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "CB Free Agency Influence", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait CB Free Agent Influence", data)
+
+	exp.ReadByte()
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "S Free Agency Influence", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait S Free Agent Influence", data)
+
+	exp.ReadByte()
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "CB Free Agency Influence", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait CB Free Agent Influence", data)
+
+	exp.ReadByte()
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "S Free Agency Influence", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait S Free Agent Influence", data)
+
+	exp.ReadByte()
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "CB Free Agency Influence", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait CB Free Agent Influence", data)
+
+	exp.ReadByte()
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "S Free Agency Influence", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait S Free Agent Influence", data)
+
+	exp.ReadByte()
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "CB Free Agency Influence", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait CB Free Agent Influence", data)
+
+	exp.ReadByte()
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "S Free Agency Influence", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait S Free Agent Influence", data)
+
+	exp.ReadByte()
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "CB Free Agency Influence", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait CB Free Agent Influence", data)
+
+	exp.ReadByte()
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "S Free Agency Influence", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait S Free Agent Influence", data)
+
+	exp.ReadByte()
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "CB Free Agency Influence", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait CB Free Agent Influence", data)
+
+	exp.ReadByte()
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "S Free Agency Influence", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait S Free Agent Influence", data)
+
+	exp.ReadByte()
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "LNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "CB Free Agency Influence", data)
+
+	tag, wireType, data = unmarshalSingular(exp)
+	assert.Equal(t, "SNAM", tag)
+	assert.Equal(t, StringType, wireType)
+	assert.Equal(t, "Trait CB Free Agent Influence", data)
+
 }
 
 // f3 index

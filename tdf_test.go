@@ -18,9 +18,9 @@ func TestGenBaseType(t *testing.T) {
 	g := stream.NewGeneratedFile()
 	m := stream.NewOrderedMap("", "") // todo 更精确的tips
 	m.Set("Integer", "bool,int8,int16,int32,int64,uint8,uint16,uint32,uint64。int8和bool似乎无法识别具体类型，有一点可以肯定的是大于1或小于0的一定不是bool，但如果是int8满足这个条件的话就无法区分了，其余类型通通被解码为int64和uint64，因为编码就是这样的，不过如果是占4字节可以解码为32位，可以尝试写个函数识别，不使用协议辅助tdf文件的锅，这应该是纯二进制解码的通病，包括protoc")
-	m.Set("String", "string")
-	m.Set("Binary", "[]byte，Java是blob")
-	m.Set("Struct", "TDFStruct")
+	m.Set("String", "string，klv，0收尾")
+	m.Set("Binary", "[]byte，Java是blob，klv，不需要0收尾")
+	m.Set("Struct", "TDFStruct，编解码类型，大小，字段，0收尾")
 	m.Set("List", "[]any，类型和大小编码一次，不需要0收尾，与公开实现的命名vector2-3不一样，Java实现反倒把这个函数命名为vector，本质上是编解码切片而已。元素的tag是一样的，不管元素是什么类型，但元素需要编码tag和type，以及value，嵌套也一样")
 	m.Set("Map", "map[any]any，key和value的type，kv总个数编码一次，不需要0收尾，kv是tlv编解码")
 	m.Set("Union", "Union需要研究结构体，todo添加Enum枚举")

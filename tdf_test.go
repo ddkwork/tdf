@@ -611,7 +611,7 @@ func TestName(t *testing.T) {
 	assert.Equal(t, StringType, wireType)
 	assert.Equal(t, "Trait Expert Scout", data)
 
-	exp.ReadByte() //struct end ID_TERM
+	exp.ReadByte() //struct end ID_TERM todo add logic:如果父级是结构体，判断下一个字节是否是id-term，是则读掉它，表示结构体结束
 
 	tag, wireType, data = unmarshalSingular(exp)
 	assert.Equal(t, "DESC", tag)

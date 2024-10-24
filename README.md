@@ -1,4 +1,5 @@
-Implements EA's TDF packet format in golang.
+Implements EA's TDF (Tagged Data Format) in golang.
+可变数据格式
 
 thanks
 

@@ -567,6 +567,16 @@ func TestName(t *testing.T) {
 	tag, baseType := decodeTagAndWireType(exp)
 	assert.Equal(t, "CTET", tag)
 	assert.Equal(t, ListType, baseType)
+
+	elemType := BaseType(decompressInteger(exp))
+	assert.Equal(t, StructType, elemType)
+
+	length := decompressInteger(exp)
+	assert.Equal(t, uint32(44), length) //2c 结构体大小
+
+	tag, baseType = decodeTagAndWireType(exp)
+	assert.Equal(t, "DESC", tag)
+	assert.Equal(t, StringType, baseType)
 }
 
 // f3 index

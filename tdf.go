@@ -330,16 +330,17 @@ func decompressInteger(b *stream.Buffer) uint32 {
 	return uint32(result)
 }
 
-func compressInteger[T constraints.Integer](value T) []byte {
+func compressInteger[T constraints.Integer](v T) []byte {
+	value := uint64(v) //todo test uint64是否可以用
 	var result []byte
 	if value < 0x40 {
 		result = append(result, byte(value))
 	} else {
-		currentByte := (value & 0x3F) | 0x80
+		currentByte := (value & 0x3F) | VARSIZE_MORE
 		result = append(result, byte(currentByte))
 		currentShift := value >> 6
-		for currentShift >= 0x80 {
-			currentByte = (currentShift & 0x7F) | 0x80
+		for currentShift >= VARSIZE_MORE {
+			currentByte = (currentShift & 0x7F) | VARSIZE_MORE
 			currentShift >>= 7
 			result = append(result, byte(currentByte))
 		}

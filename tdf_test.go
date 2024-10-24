@@ -3,6 +3,8 @@ package tdf
 import (
 	"encoding/hex"
 	"slices"
+	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/ddkwork/encoding/struct2table"
@@ -1089,192 +1091,266 @@ func Test_marshalList(t *testing.T) {
 	elemSize := 44
 	b.Write(slices.Concat(compressInteger(elemType), compressInteger(elemSize)))
 	type structMock struct {
-		filed1 string `json:"DESC"`
-		filed2 string `json:"LNAM"`
-		filed3 string `json:"SNAM"`
+		field1 string `json:"DESC"`
+		field2 string `json:"LNAM"`
+		field3 string `json:"SNAM"`
 	}
 	mockObjects := []structMock{
-		//提取上面的信息填充结构体切片
 		{
-			filed1: "",
-			filed2: "Expert Scouting",
-			filed3: "Trait Expert Scout",
+			field1: "",
+			field2: "Expert Scouting",
+			field3: "Trait Expert Scout",
 		},
 		{
-			filed1: "",
-			filed2: "Increased Player Weekly Goal XP",
-			filed3: "Trait Increased Experience",
+			field1: "",
+			field2: "Increased Player Weekly Goal XP",
+			field3: "Trait Increased Experience",
 		},
 		{
-			filed1: "",
-			filed2: "Become Predictable",
-			filed3: "Trait Predictability",
+			field1: "",
+			field2: "Become Predictable",
+			field3: "Trait Predictability",
 		},
 		{
-			filed1: "",
-			filed2: "Master Trade Negotiator",
-			filed3: "Trait Trade Influence",
+			field1: "",
+			field2: "Master Trade Negotiator",
+			field3: "Trait Trade Influence",
 		},
 		{
-			filed1: "",
-			filed2: "QB Free Agency Influence",
-			filed3: "Trait QB Free Agent Influence",
+			field1: "",
+			field2: "QB Free Agency Influence",
+			field3: "Trait QB Free Agent Influence",
 		},
 		{
-			filed1: "",
-			filed2: "RB Free Agency Influence",
-			filed3: "Trait RB Free Agent Influence",
+			field1: "",
+			field2: "RB Free Agency Influence",
+			field3: "Trait RB Free Agent Influence",
 		},
 		{
-			filed1: "",
-			filed2: "WR Free Agency Influence",
-			filed3: "Trait WR Free Agent Influence",
+			field1: "",
+			field2: "WR Free Agency Influence",
+			field3: "Trait WR Free Agent Influence",
 		},
 		{
-			filed1: "",
-			filed2: "TE Free Agency Influence",
-			filed3: "Trait TE Free Agent Influence",
+			field1: "",
+			field2: "TE Free Agency Influence",
+			field3: "Trait TE Free Agent Influence",
 		},
 		{
-			filed1: "",
-			filed2: "OL Free Agency Influence",
-			filed3: "Trait OL Free Agent Influence",
+			field1: "",
+			field2: "OL Free Agency Influence",
+			field3: "Trait OL Free Agent Influence",
 		},
 		{
-			filed1: "",
-			filed2: "DL Free Agency Influence",
-			filed3: "Trait DL Free Agent Influence",
+			field1: "",
+			field2: "DL Free Agency Influence",
+			field3: "Trait DL Free Agent Influence",
 		},
 		{
-			filed1: "",
-			filed2: "LB Free Agency Influence",
-			filed3: "Trait LB Free Agent Influence",
+			field1: "",
+			field2: "LB Free Agency Influence",
+			field3: "Trait LB Free Agent Influence",
 		},
 		{
-			filed1: "", filed2: "DB Free Agency Influence",
-			filed3: "Trait DB Free Agent Influence",
+			field1: "",
+			field2: "DB Free Agency Influence",
+			field3: "Trait DB Free Agent Influence",
 		},
 		{
-			filed1: "",
-			filed2: "K Free Agency Influence",
-			filed3: "Trait K Free Agent Influence",
+			field1: "",
+			field2: "K Free Agency Influence",
+			field3: "Trait K Free Agent Influence",
 		},
 		{
-			filed1: "",
-			filed2: "P Free Agency Influence",
-			filed3: "Trait P Free Agent Influence",
+			field1: "",
+			field2: "P Free Agency Influence",
+			field3: "Trait P Free Agent Influence",
 		},
 		{
-			filed1: "",
-			filed2: "QB Contract Influence",
-			filed3: "Trait QB Contract Influence",
+			field1: "",
+			field2: "QB Training Boost",
+			field3: "Trait QB Player Progression",
 		},
 		{
-			filed1: "",
-			filed2: "RB Contract Influence",
-			filed3: "Trait RB Contract Influence",
+			field1: "",
+			field2: "RB Training Boost",
+			field3: "Trait RB Player Progression",
 		},
 		{
-			filed1: "",
-			filed2: "WR Contract Influence",
-			filed3: "Trait WR Contract Influence",
+			field1: "",
+			field2: "WR Training Boost",
+			field3: "Trait WR Player Progression",
 		},
 		{
-			filed1: "",
-			filed2: "TE Contract Influence",
-			filed3: "Trait TE Contract Influence",
+			field1: "",
+			field2: "TE Training Boost",
+			field3: "Trait TE Player Progression",
 		},
 		{
-			filed1: "",
-			filed2: "OL Contract Influence",
-			filed3: "Trait OL Contract Influence",
+			field1: "",
+			field2: "OL Training Boost",
+			field3: "Trait OL Player Progression",
 		},
 		{
-			filed1: "",
-			filed2: "DL Contract Influence",
-			filed3: "Trait DL Contract Influence",
+			field1: "",
+			field2: "DL Training Boost",
+			field3: "Trait DL Player Progression",
 		},
 		{
-			filed1: "",
-			filed2: "LB Contract Influence",
-			filed3: "Trait LB Contract Influence",
+			field1: "",
+			field2: "LB Training Boost",
+			field3: "Trait LB Player Progression",
 		},
 		{
-			filed1: "",
-			filed2: "DB Contract Influence",
-			filed3: "Trait DB Contract Influence",
+			field1: "",
+			field2: "DB Training Boost",
+			field3: "Trait DB Player Progression",
 		},
 		{
-			filed1: "",
-			filed2: "K Contract Influence",
-			filed3: "Trait K Contract Influence",
+			field1: "",
+			field2: "K Training Boost",
+			field3: "Trait K Player Progression",
 		},
 		{
-			filed1: "",
-			filed2: "P Contract Influence",
-			filed3: "Trait P Contract Influence",
+			field1: "",
+			field2: "P Training Boost",
+			field3: "Trait P Player Progression",
 		},
 		{
-			filed1: "",
-			filed2: "QB Retirement Influence",
-			filed3: "Trait QB Retirement Influence",
+			field1: "",
+			field2: "QB Re-Sign Influence",
+			field3: "Trait QB Contract Influence",
 		},
 		{
-			filed1: "",
-			filed2: "RB Retirement Influence",
-			filed3: "Trait RB Retirement Influence",
+			field1: "",
+			field2: "RB Re-Sign Influence",
+			field3: "Trait RB Contract Influence",
 		},
 		{
-			filed1: "",
-			filed2: "WR Retirement Influence",
-			filed3: "Trait WR Retirement Influence",
+			field1: "",
+			field2: "WR Re-Sign Influence",
+			field3: "Trait WR Contract Influence",
 		},
 		{
-			filed1: "",
-			filed2: "TE Retirement Influence",
-			filed3: "Trait TE Retirement Influence",
+			field1: "",
+			field2: "TE Re-Sign Influence",
+			field3: "Trait TE Contract Influence",
 		},
 		{
-			filed1: "",
-			filed2: "OL Retirement Influence",
-			filed3: "Trait OL Retirement Influence",
+			field1: "",
+			field2: "OL Re-Sign Influence",
+			field3: "Trait OL Contract Influence",
 		},
 		{
-			filed1: "",
-			filed2: "DL Retirement Influence",
-			filed3: "Trait DL Retirement Influence",
+			field1: "",
+			field2: "DL Re-Sign Influence",
+			field3: "Trait DL Contract Influence",
 		},
 		{
-			filed1: "",
-			filed2: "LB Retirement Influence",
-			filed3: "Trait LB Retirement Influence",
+			field1: "",
+			field2: "LB Re-Sign Influence",
+			field3: "Trait LB Contract Influence",
 		},
 		{
-			filed1: "",
-			filed2: "DB Retirement Influence",
-			filed3: "Trait DB Retirement Influence",
+			field1: "",
+			field2: "DB Re-Sign Influence",
+			field3: "Trait DB Contract Influence",
 		},
 		{
-			filed1: "",
-			filed2: "K Retirement Influence",
-			filed3: "Trait K Retirement Influence",
+			field1: "",
+			field2: "K Re-Sign Influence",
+			field3: "Trait K Contract Influence",
 		},
 		{
-			filed1: "",
-			filed2: "P Retirement Influence",
-			filed3: "Trait P Retirement Influence",
+			field1: "",
+			field2: "P Re-Sign Influence",
+			field3: "Trait P Contract Influence",
+		},
+		{
+			field1: "",
+			field2: "QB Retirement Influence",
+			field3: "Trait QB Retirement Influence",
+		},
+		{
+			field1: "",
+			field2: "RB Retirement Influence",
+			field3: "Trait RB Retirement Influence",
+		},
+		{
+			field1: "",
+			field2: "WR Retirement Influence",
+			field3: "Trait WR Retirement Influence",
+		},
+		{
+			field1: "",
+			field2: "TE Retirement Influence",
+			field3: "Trait TE Retirement Influence",
+		},
+		{
+			field1: "",
+			field2: "OL Retirement Influence",
+			field3: "Trait OL Retirement Influence",
+		},
+		{
+			field1: "",
+			field2: "DL Retirement Influence",
+			field3: "Trait DL Retirement Influence",
+		},
+		{
+			field1: "",
+			field2: "LB Retirement Influence",
+			field3: "Trait LB Retirement Influence",
+		},
+		{
+			field1: "",
+			field2: "DB Retirement Influence",
+			field3: "Trait DB Retirement Influence",
+		},
+		{
+			field1: "",
+			field2: "K Retirement Influence",
+			field3: "Trait K Retirement Influence",
+		},
+		{
+			field1: "",
+			field2: "P Retirement Influence",
+			field3: "Trait P Retirement Influence",
 		},
 	}
 
+	elems := make([]string, 0)
+	for _, s := range stream.ToLines(tdf_test_data.decoded) {
+		if s == "{FORM:<9A FC AD >:TdfStruct:size=:TdfStruct:size=5:" {
+			break
+		}
+		if strings.Contains(s, "TdfString") {
+			_, after, found := strings.Cut(s, "TdfString:")
+			if found {
+				after = strings.TrimSuffix(after, "}")
+				elems = append(elems, after)
+			}
+		}
+	}
+	g := stream.NewGeneratedFile()
+	g.P("mockObjects := []structMock{")
+	chunk := slices.Chunk(elems, 3)
+	chunk(func(ss []string) bool {
+		g.P("{")
+		for i, s := range ss {
+			if s == "nullptr" {
+				s = strconv.Quote("")
+			}
+			g.P("field", i+1, ":", s, ",")
+		}
+		g.P("}", ",")
+		return true
+	})
+	g.P("}")
+
+	assert.Equal(t, 44*3, len(elems))
+	assert.Equal(t, 44, len(mockObjects))
 	//这里需要一个结构体包裹它，是第二个字段
-	//	{:<>:TdfStruct:size=:TdfStruct:size=4:
-	//				{BASE:<8A 1C E5 >:TdfInteger:0}
-	//				{DICT:<92 98 F4 >:TdfMap:1-0 size=1:
-	//					{"IsUserControlled":0}
-	//				}
-	//				{NAME:<BA 1B 65 >:TdfString:"UserEntity"}
-	//				{TYPE:<D3 9C 25 >:TdfInteger:0}
-	//			}
+
 	type mockMapValueObject struct { //如果字段是空的就不编码？
 		filed1 int            `json:"BASE"`
 		filed2 map[string]int `json:"DICT"` //这里还是排序才方便填充字段
@@ -1289,11 +1365,11 @@ func Test_marshalList(t *testing.T) {
 		filed4: 0,
 	})
 
-	for i := range elemSize {
-		//in list ,skip tag and type marshal
-		//mock marshal struct
+	//for i := range elemSize {
+	//in list ,skip tag and type marshal
+	//mock marshal struct
 
-	}
+	//	}
 
 }
 

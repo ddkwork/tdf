@@ -2,6 +2,7 @@ package tdf
 
 import (
 	"encoding/hex"
+	"slices"
 	"testing"
 
 	"github.com/ddkwork/encoding/struct2table"
@@ -78,12 +79,6 @@ func TestMarshal(t *testing.T) {
 }
 
 func TestNativeType_IsValid(t *testing.T) {
-}
-
-func Test_marshalList(t *testing.T) {
-}
-
-func Test_marshalMap(t *testing.T) {
 }
 
 func Test_marshalSingular(t *testing.T) {
@@ -1080,6 +1075,225 @@ func TestName(t *testing.T) {
 	assert.Equal(t, "SNAM", tag)
 	assert.Equal(t, StringType, wireType)
 	assert.Equal(t, "Trait CB Free Agent Influence", data)
+
+}
+
+func Test_marshalMap(t *testing.T) {
+
+}
+
+func Test_marshalList(t *testing.T) {
+	b := encodeTagAndWireType("CTET", ListType)
+	//marshalList(b)
+	elemType := StructType
+	elemSize := 44
+	b.Write(slices.Concat(compressInteger(elemType), compressInteger(elemSize)))
+	type structMock struct {
+		filed1 string `json:"DESC"`
+		filed2 string `json:"LNAM"`
+		filed3 string `json:"SNAM"`
+	}
+	mockObjects := []structMock{
+		//提取上面的信息填充结构体切片
+		{
+			filed1: "",
+			filed2: "Expert Scouting",
+			filed3: "Trait Expert Scout",
+		},
+		{
+			filed1: "",
+			filed2: "Increased Player Weekly Goal XP",
+			filed3: "Trait Increased Experience",
+		},
+		{
+			filed1: "",
+			filed2: "Become Predictable",
+			filed3: "Trait Predictability",
+		},
+		{
+			filed1: "",
+			filed2: "Master Trade Negotiator",
+			filed3: "Trait Trade Influence",
+		},
+		{
+			filed1: "",
+			filed2: "QB Free Agency Influence",
+			filed3: "Trait QB Free Agent Influence",
+		},
+		{
+			filed1: "",
+			filed2: "RB Free Agency Influence",
+			filed3: "Trait RB Free Agent Influence",
+		},
+		{
+			filed1: "",
+			filed2: "WR Free Agency Influence",
+			filed3: "Trait WR Free Agent Influence",
+		},
+		{
+			filed1: "",
+			filed2: "TE Free Agency Influence",
+			filed3: "Trait TE Free Agent Influence",
+		},
+		{
+			filed1: "",
+			filed2: "OL Free Agency Influence",
+			filed3: "Trait OL Free Agent Influence",
+		},
+		{
+			filed1: "",
+			filed2: "DL Free Agency Influence",
+			filed3: "Trait DL Free Agent Influence",
+		},
+		{
+			filed1: "",
+			filed2: "LB Free Agency Influence",
+			filed3: "Trait LB Free Agent Influence",
+		},
+		{
+			filed1: "", filed2: "DB Free Agency Influence",
+			filed3: "Trait DB Free Agent Influence",
+		},
+		{
+			filed1: "",
+			filed2: "K Free Agency Influence",
+			filed3: "Trait K Free Agent Influence",
+		},
+		{
+			filed1: "",
+			filed2: "P Free Agency Influence",
+			filed3: "Trait P Free Agent Influence",
+		},
+		{
+			filed1: "",
+			filed2: "QB Contract Influence",
+			filed3: "Trait QB Contract Influence",
+		},
+		{
+			filed1: "",
+			filed2: "RB Contract Influence",
+			filed3: "Trait RB Contract Influence",
+		},
+		{
+			filed1: "",
+			filed2: "WR Contract Influence",
+			filed3: "Trait WR Contract Influence",
+		},
+		{
+			filed1: "",
+			filed2: "TE Contract Influence",
+			filed3: "Trait TE Contract Influence",
+		},
+		{
+			filed1: "",
+			filed2: "OL Contract Influence",
+			filed3: "Trait OL Contract Influence",
+		},
+		{
+			filed1: "",
+			filed2: "DL Contract Influence",
+			filed3: "Trait DL Contract Influence",
+		},
+		{
+			filed1: "",
+			filed2: "LB Contract Influence",
+			filed3: "Trait LB Contract Influence",
+		},
+		{
+			filed1: "",
+			filed2: "DB Contract Influence",
+			filed3: "Trait DB Contract Influence",
+		},
+		{
+			filed1: "",
+			filed2: "K Contract Influence",
+			filed3: "Trait K Contract Influence",
+		},
+		{
+			filed1: "",
+			filed2: "P Contract Influence",
+			filed3: "Trait P Contract Influence",
+		},
+		{
+			filed1: "",
+			filed2: "QB Retirement Influence",
+			filed3: "Trait QB Retirement Influence",
+		},
+		{
+			filed1: "",
+			filed2: "RB Retirement Influence",
+			filed3: "Trait RB Retirement Influence",
+		},
+		{
+			filed1: "",
+			filed2: "WR Retirement Influence",
+			filed3: "Trait WR Retirement Influence",
+		},
+		{
+			filed1: "",
+			filed2: "TE Retirement Influence",
+			filed3: "Trait TE Retirement Influence",
+		},
+		{
+			filed1: "",
+			filed2: "OL Retirement Influence",
+			filed3: "Trait OL Retirement Influence",
+		},
+		{
+			filed1: "",
+			filed2: "DL Retirement Influence",
+			filed3: "Trait DL Retirement Influence",
+		},
+		{
+			filed1: "",
+			filed2: "LB Retirement Influence",
+			filed3: "Trait LB Retirement Influence",
+		},
+		{
+			filed1: "",
+			filed2: "DB Retirement Influence",
+			filed3: "Trait DB Retirement Influence",
+		},
+		{
+			filed1: "",
+			filed2: "K Retirement Influence",
+			filed3: "Trait K Retirement Influence",
+		},
+		{
+			filed1: "",
+			filed2: "P Retirement Influence",
+			filed3: "Trait P Retirement Influence",
+		},
+	}
+
+	//这里需要一个结构体包裹它，是第二个字段
+	//	{:<>:TdfStruct:size=:TdfStruct:size=4:
+	//				{BASE:<8A 1C E5 >:TdfInteger:0}
+	//				{DICT:<92 98 F4 >:TdfMap:1-0 size=1:
+	//					{"IsUserControlled":0}
+	//				}
+	//				{NAME:<BA 1B 65 >:TdfString:"UserEntity"}
+	//				{TYPE:<D3 9C 25 >:TdfInteger:0}
+	//			}
+	type mockMapValueObject struct { //如果字段是空的就不编码？
+		filed1 int            `json:"BASE"`
+		filed2 map[string]int `json:"DICT"` //这里还是排序才方便填充字段
+		filed3 string         `json:"NAME"`
+		filed4 int            `json:"TYPE"`
+	}
+	mapMock := stream.NewOrderedMap(0, mockMapValueObject{}) //todo key type need test
+	mapMock.Set(0, mockMapValueObject{
+		filed1: 0,
+		filed2: map[string]int{"IsUserControlled": 0},
+		filed3: "UserEntity",
+		filed4: 0,
+	})
+
+	for i := range elemSize {
+		//in list ,skip tag and type marshal
+		//mock marshal struct
+
+	}
 
 }
 

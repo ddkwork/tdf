@@ -2,6 +2,7 @@ package tdf
 
 import (
 	"encoding/binary"
+	"golang.org/x/exp/constraints"
 	"io"
 	"math"
 	. "reflect"
@@ -329,7 +330,7 @@ func decompressInteger(b *stream.Buffer) uint32 {
 	return uint32(result)
 }
 
-func compressInteger[T int64 | uint64](value T) []byte {
+func compressInteger[T constraints.Integer](value T) []byte {
 	var result []byte
 	if value < 0x40 {
 		result = append(result, byte(value))
@@ -369,6 +370,7 @@ func NewSingularAssert(data any) *SingularAssert {
 	return &SingularAssert{data: data}
 }
 
+// todo need make a map,and switch these methods
 func (s *SingularAssert) Bool() bool                        { return s.data.(bool) }
 func (s *SingularAssert) String() string                    { return s.data.(string) }
 func (s *SingularAssert) Int() int                          { return s.data.(int) }

@@ -18,7 +18,7 @@ require (
 	github.com/cogentcore/yaegi v0.0.0-20240724064145-e32a03faad56 // indirect
 	github.com/coreos/go-oidc/v3 v3.10.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
-	github.com/ddkwork/golibrary v0.0.0-20241020144441-0151141db9f3 // indirect
+	github.com/ddkwork/golibrary v0.0.0-20241025003819-4d1c80a8a691 // indirect
 	github.com/dlclark/regexp2 v1.11.4 // indirect
 	github.com/ergochat/readline v0.1.2 // indirect
 	github.com/ericchiang/css v1.3.0 // indirect

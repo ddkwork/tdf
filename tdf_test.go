@@ -16,7 +16,7 @@ import (
 func TestGenBaseType(t *testing.T) {
 	mylog.FormatAllFiles()
 	g := stream.NewGeneratedFile()
-	m := stream.NewOrderedMap("", "") 
+	m := stream.NewOrderedMap("", "")
 	m.Set("Integer", "bool,int8,int16,int32,int64,uint8,uint16,uint32,uint64。int8和bool似乎无法识别具体类型，有一点可以肯定的是大于1或小于0的一定不是bool，但如果是int8满足这个条件的话就无法区分了，其余类型通通被解码为int64和uint64，因为编码就是这样的，不过如果是占4字节可以解码为32位，可以尝试写个函数识别，不使用协议辅助tdf文件的锅，这应该是纯二进制解码的通病，包括protoc")
 	m.Set("String", "string，klv，0收尾")
 	m.Set("Binary", "[]byte，Java是blob，klv，不需要0收尾")
@@ -30,7 +30,7 @@ func TestGenBaseType(t *testing.T) {
 	m.Set("Float", "float32,float64，编解码通通识别为64位，似乎也不影响正确性")
 	m.Set("TimeValue", "time.Time，取UNIX时间戳还是取秒?需要研究Java测试")
 	m.Set("Max", "must less it")
-	g.Types("base", m)
+	g.EnumTypes("base", m)
 }
 
 func TestReflect(t *testing.T) {

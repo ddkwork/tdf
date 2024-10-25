@@ -693,9 +693,10 @@ func Test_marshalList(t *testing.T) {
 		b.Append(marshalSingular(tags[0], elem.Field1))
 		b.Append(marshalSingular(tags[1], elem.Field2))
 		b.Append(marshalSingular(tags[2], elem.Field3))
+		b.WriteByte(ID_TERM) //endGroup
 	}
 	b.WriteByte(ID_TERM) //endGroup
-	mylog.HexDump("marshalList", b.Bytes())
+	//	mylog.HexDump("marshalList", b.Bytes())
 	exp := stream.NewHexDump(tdf_test_data.hexdump)
 	exp.ReadN(16)
 	assert.Equal(t, exp.ReadN(0x100+1), b.Bytes())
